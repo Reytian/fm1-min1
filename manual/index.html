@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MIN-1 Manual</title>
+<meta name="description" content="The manual for MIN-1, minimalist music for the M-VAVE FM-1: the four models, the keys, the pages, songs.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600&family=Barlow+Semi+Condensed:wght@600;700&display=swap" media="print" onload="this.media='all'">
+<meta name="theme-color" content="#ecf0f2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f151c" media="(prefers-color-scheme: dark)">
+<style>
+:root { --paper: #ecf0f2; --panel: #fafcfd; --line: #c8d2d8; --muted: #4f5d68; --ink: #16202c; --accent: #2463c4; --on-accent: #fafcfd;
+        --body: "Barlow", "Helvetica Neue", Helvetica, Arial, sans-serif; --display: "Barlow Semi Condensed", "Arial Narrow", Arial, sans-serif;
+        --mono: ui-monospace, Menlo, Consolas, monospace; color-scheme: light; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --paper: #0f151c; --panel: #18212b; --line: #2b3742; --muted: #9eabb6; --ink: #e4eaee; --accent: #7aa7ec; --on-accent: #0f151c; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --paper: #0f151c; --panel: #18212b; --line: #2b3742; --muted: #9eabb6; --ink: #e4eaee; --accent: #7aa7ec; --on-accent: #0f151c; color-scheme: dark; }
+body { background: var(--paper); color: var(--ink); margin: 0; padding-inline: 16px; padding-block: 28px 64px; font: 400 17px/1.6 var(--body); }
+a { color: var(--ink); text-decoration-color: var(--accent); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+a:hover { color: var(--accent); }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.site { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem 1.2rem; margin: 0 0 1.8rem; padding-bottom: .6rem; border-bottom: 1px solid var(--line); }
+.site .home { font: 700 1.35rem/1.1 var(--display); letter-spacing: .08em; text-decoration: none; }
+.site nav { margin-left: auto; display: flex; flex-wrap: wrap; gap: .2rem 1rem; }
+.site nav a[aria-current] { text-decoration: none; color: var(--accent); }
+
+main { max-width: 46rem; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--display); line-height: 1.15; text-wrap: balance; }
+h1 { font-size: 2.6rem; font-weight: 700; letter-spacing: .06em; margin: 0 0 .4rem; }
+h2 { font-size: 1.55rem; font-weight: 600; letter-spacing: .03em; margin: 2.8rem 0 .8rem; padding-top: .9rem; border-top: 1px solid var(--line); }
+h3 { font-size: 1.25rem; font-weight: 600; letter-spacing: .03em; margin: 2rem 0 .6rem; }
+p, li { max-width: 68ch; }
+p { margin: 0 0 1rem; }
+.lede { color: var(--muted); font-size: 1.1rem; margin-bottom: 1.6rem; }
+ul, ol { padding-left: 1.3rem; margin: 0 0 1rem; }
+li { margin: .3rem 0; }
+li::marker { color: var(--accent); }
+strong { font-weight: 600; }
+code, pre { font-family: var(--mono); font-size: .86em; }
+code { background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: .05em .35em; overflow-wrap: anywhere; }
+pre { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px; overflow-x: auto; line-height: 1.45; margin: 0 0 1.2rem; }
+pre code { background: none; border: 0; padding: 0; font-size: inherit; overflow-wrap: normal; }
+.table { overflow-x: auto; margin: 0 0 1.4rem; }
+table { border-collapse: collapse; width: 100%; font-size: .95rem; line-height: 1.5; }
+th, td { text-align: left; vertical-align: top; padding: .5rem .9rem .5rem 0; border-bottom: 1px solid var(--line); }
+th { font: 600 .85rem var(--display); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); border-bottom-color: var(--ink); }
+td:first-child { font-weight: 600; min-width: 7.5rem; }
+figure { margin: .4rem 0 1.8rem; }
+figure img { display: block; width: 100%; height: auto; border-radius: 8px; }
+figcaption { color: var(--muted); font-size: .9rem; margin-top: .45rem; }
+.callout { border-left: 4px solid var(--accent); background: var(--panel); padding: 10px 16px; margin: 0 0 1.2rem; max-width: 68ch; }
+.callout p { margin: 0; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+</head>
+<body>
+<main>
+<header class="site"><a class="home" href="../">MIN-1</a><nav><a href="../emu/">Emulator</a><a href="../install/">Install</a><a href="../manual/" aria-current="page">Manual</a><a href="https://github.com/Reytian/fm1-min1">Source</a></nav></header>
+<h1>Manual</h1>
+<p class="lede"><em>Minimalist music for everyone, by Reytian. Inspired by <a href="https://github.com/charlesvestal/fm1-amb">FM1-AMB</a> and Philip Glass.</em></p>
+<figure><img src="../img/min1.png" alt="MIN-1 in the browser emulator: the FM-1, and its screen at twice the size" loading="lazy"><figcaption>MIN-1 in the browser emulator: the FM-1, and its screen at twice the size</figcaption></figure>
+<p>MIN-1 turns the M-VAVE FM-1 into a small minimalist ensemble, in the manner of the music of the 1960s to 80s that was made from very little: repeating figures, slow cycles of chords, processes you can hear. It plays itself from the moment it's switched on, so there is always something to start from; then you take over as much as you like: play your own chords (no theory needed: in EASY keys every key is a chord that fits), roll ideas and keep the ones you like, bring parts in and out by hand, put processes on the figures, and record it all as a song.</p>
+<ul><li><strong>Try it in your browser</strong> (no FM-1 needed): <a href="../emu/">https://reytian.github.io/fm1-min1/emu/</a></li><li><strong>Install it</strong> (Chrome or Edge, with the FM-1 plugged in): <a href="../install/">https://reytian.github.io/fm1-min1/install/</a>, or from the command line: <code>python3 tools/fm1_install.py min-0.2.1.fwsc</code> (see <a href="https://github.com/Reytian/fm1-min1/blob/main/BUILDING.md#install">BUILDING.md</a>)</li><li><strong>Download the firmware file</strong>: <a href="https://github.com/Reytian/fm1-min1/releases">releases</a> (<code>min-0.2.1.fwsc</code>)</li><li><strong>Watch the demo</strong> (3:49, recorded from the browser emulator, no voice-over): <a href="https://github.com/Reytian/fm1-min1/releases/download/v0.2/min1-demo.mp4">min1-demo.mp4</a></li></ul>
+<h2 id="four-models">Four models</h2>
+<figure><img src="../img/models.png" alt="The four models on the FM-1&#x27;s screen" loading="lazy"><figcaption>The four models on the FM-1's screen</figcaption></figure>
+<div class="table"><table><thead><tr><th>Model</th><th>What it does</th><th>Pieces</th></tr></thead><tbody><tr><td>ARPEGGIO</td><td>Figures of the chord's tones, two against three; the additive process grows and shrinks them a note at a time</td><td>Morning, Glacier, Lagoon, Machine, Skyline, Evening, Counting, Prism</td></tr><tr><td>PHASE</td><td>Two parts play one figure; the lower slowly drifts ahead, locks in a step ahead, drifts on, round to unison</td><td>Drift, Breath, Weave, Tilt</td></tr><tr><td>PATTERNS</td><td>A chain of short patterns, each a little changed from the last; three players move along it at their own pace over a high pulse</td><td>Bazaar, Field, Gears, Murmur</td></tr><tr><td>BELLS</td><td>A melody walks the scale by step in phrases that grow from one note; a bell answers each note with the chord's nearest tone</td><td>Vigil, Snowfall, Lantern, Chapel</td></tr></tbody></table></div>
+<h2 id="in-short">In short</h2>
+<div class="table"><table><tbody><tr><td>Keys</td><td>The chord. EASY (the default): each white key is a chord of the key, the tonic leftmost; the black keys the same chord with a seventh; several keys make a richer one. NOTES: the notes themselves. Let go and the cycle comes back</td></tr><tr><td>PLAY · REC · EDIT</td><td>Play / stop · record a song from the top (again: kept) · an idea for this page</td></tr><tr><td>SEL held</td><td>By hand: ENV ARP LFO SEQ FX bring a part in or out; EDIT goes back to the idea before; REC learns a cycle from the chords you play; PLAY switches songs / live; white keys 1–8: grow, shrink, shift, flip, still, slower, faster, a new section</td></tr><tr><td>HOME · ENV · ARP · LFO · SEQ · FX · GLO</td><td>The pages: Form, Upper, Lower, Bass, Lead, Chords, Setup (GLO again: System)</td></tr><tr><td>SELECT</td><td>The previous or next page; with HOME held, the tempo</td></tr><tr><td>ALGORITHM · PRESETS</td><td>The chord cycle (eighteen, Mine, Rolled) · the piece (twenty), or in SONGS the song (eight)</td></tr><tr><td>OCT− / OCT+</td><td>The upper part's octave</td></tr><tr><td>SAVE</td><td>Saves pieces and songs; held, puts the piece back to its recipe (in SONGS: deletes the song)</td></tr></tbody></table></div>
+<p>Hold any button for a second and a card says what it does; hold SEL and the screen shows its map. The design (in Chinese) is in <a href="https://github.com/Reytian/fm1-min1/blob/main/docs/DESIGN.md">docs/DESIGN.md</a>.</p>
+<h3 id="from-listening-to-making">From listening to making</h3>
+<ol><li><strong>Listen.</strong> PRESETS goes through the twenty pieces; each plays itself.</li><li><strong>Play the harmony.</strong> Press white keys: each is a chord that fits. Turn HOLD on (Setup) and a chord stays until you press it again. The keys light where the cycle is, so you can play along.</li><li><strong>Roll ideas.</strong> On a page, EDIT rolls an idea for it: a new chord cycle (Form), a new figure (Upper, Lower), a new line or melody or set of patterns (Lead), a new bass, a new rhythm. SEL + EDIT goes back. Ideas are kept with the piece.</li><li><strong>Make your own cycle.</strong> SEL + REC, play two to eight chords one at a time, REC: they become "Mine".</li><li><strong>Arrange by hand.</strong> SEL + a part's page button brings it in or out at the next chord; SEL + white keys put processes on the figures.</li><li><strong>Record a song.</strong> REC starts from the top and records everything you do; REC again keeps it. PLAY plays it back exactly. SAVE keeps it, eight songs in all.</li></ol>
+<h3 id="the-pages">The pages</h3>
+<div class="table"><table><thead><tr><th>Page</th><th>KNOB 1</th><th>KNOB 2</th><th>KNOB 3</th><th>KNOB 4</th></tr></thead><tbody><tr><td>Form (HOME)</td><td>Evolve (Patterns: Move on)</td><td>Build</td><td>Process (Phase: Drift, Patterns: Spread, Bells: Phrases)</td><td>Chord (its length)</td></tr><tr><td>Upper (ENV)</td><td>Level</td><td>Sound</td><td>Pulse (notes a beat)</td><td>Figure (Patterns: Start, Bells: where the bells answer)</td></tr><tr><td>Lower (ARP)</td><td>Level</td><td>Sound</td><td>Pulse</td><td>Figure (Patterns: Start)</td></tr><tr><td>Bass (LFO)</td><td>Level</td><td>Sound</td><td>Style</td><td>Octave</td></tr><tr><td>Lead (SEQ)</td><td>Level</td><td>Sound</td><td>Activity (Patterns, Bells: Pace)</td><td>Harmony</td></tr><tr><td>Chords (FX)</td><td>Level</td><td>Sound</td><td>Rhythm (hold, swell, 8ths, beats, breath, pulse)</td><td>Room (the reverb)</td></tr><tr><td>Setup (GLO)</td><td>Tempo</td><td>Root</td><td>Keys (Easy / Notes)</td><td>Hold</td></tr><tr><td>System (GLO again)</td><td>Model</td><td>MIDI out</td><td>Lights</td><td>CPU</td></tr></tbody></table></div>
+<h2 id="building-and-testing">Building and testing</h2>
+<p>The toolchain is AMB-1's and X0X's (see <a href="https://github.com/Reytian/fm1-min1/blob/main/BUILDING.md">BUILDING.md</a>):</p>
+<pre><code>tests/run_tests.sh      # the instrument, the platform pieces, the app in a simulator, the load on the FM-1
+./build.sh              # build/min.fwsc
+python3 tools/fm1_install.py build/min.fwsc     # install it over USB</code></pre>
+<p><code>build/host/min_host SCRIPT OUTDIR</code> runs the whole app on a computer from a script (<code>tests/scenarios/*.min</code>), with audio and screenshots coming out. <code>tests/host/min_render.c</code> renders every piece to <code>build/render/</code> and prints how hard each would work the FM-1's processor, from the instructions it runs (calibrated against X0X's published PERF TEST figures).</p>
+<p>Installing firmware is at your own risk. An FM-1 that fails to start twice comes up in a safe mode with USB on, and M-VAVE's own firmware can always be put back: the web installer's "Back to the stock firmware", or see BUILDING.md.</p>
+<h2 id="credits">Credits</h2>
+<p>MIN-1 is by Reytian. It is inspired by <a href="https://github.com/charlesvestal/fm1-amb">AMB-1</a>, Charles Vestal's generative ambient firmware for the FM-1, and by the music of Philip Glass.</p>
+<p>The platform (hardware layer, USB, update loader, storage, installer) is <a href="https://github.com/hugelton/Felucca">Felucca</a>'s by Leo Kuroshita (Hügelton Instruments), by way of Charles Vestal's <a href="https://github.com/charlesvestal/fm1-x0x">X0X</a>, FoMni and <a href="https://github.com/charlesvestal/fm1-amb">AMB-1</a>, whose app layer, simulator and tools MIN-1 started from. The reverb is Jon Dattorro's plate ("Effect Design, Part 1", JAES 1997), as in AMB-1. The models follow techniques of the minimalist composers (arpeggiated cycles and additive process, phasing, chains of patterns played at each player's pace, tintinnabuli); no music is taken from their works. GPL-3.0-only; see <a href="https://github.com/Reytian/fm1-min1/blob/main/LICENSING.md">LICENSING.md</a>.</p>
+<p>M-VAVE and FM-1 are trademarks of their owners. MIN-1 is not affiliated with M-VAVE, Hügelton Instruments, Charles Vestal, Philip Glass, or any composer.</p>
+<h2 id="中文简介" lang="zh-Hans">中文简介</h2>
+<p lang="zh-Hans">MIN-1 是 M-VAVE FM-1 的极简主义音乐固件，受 FM1-AMB 与 Philip Glass 启发。开机就自己演奏：重复的音型、缓慢的和弦循环、听得见的过程；然后交给你：按住白键就是和弦（不需要乐理），EDIT 随机出点子，教它你自己的和弦循环，亲手让声部进出，录下一首歌并原样回放。四种模型（琶音、相位、模式、钟声），二十首曲子。设计说明见 <a href="https://github.com/Reytian/fm1-min1/blob/main/docs/DESIGN.md">docs/DESIGN.md</a>。在浏览器里试玩：<a href="../emu/">https://reytian.github.io/fm1-min1/emu/</a>；用 Chrome 或 Edge 安装：<a href="../install/">https://reytian.github.io/fm1-min1/install/</a>。</p>
+</main>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MIN-1</title>
+<meta name="description" content="Minimalist music for the M-VAVE FM-1: a small ensemble that plays itself from the moment it's switched on, and that anyone can take over. Try it in your browser, or install it from Chrome or Edge.">
+<meta property="og:title" content="MIN-1: minimalist music for the M-VAVE FM-1">
+<meta property="og:description" content="A small ensemble that plays itself, and that anyone can take over. Try it in your browser.">
+<meta property="og:image" content="https://reytian.github.io/fm1-min1/img/min1.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600&family=Barlow+Semi+Condensed:wght@600;700&display=swap" media="print" onload="this.media='all'">
+<meta name="theme-color" content="#ecf0f2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f151c" media="(prefers-color-scheme: dark)">
+<style>
+:root { --paper: #ecf0f2; --panel: #fafcfd; --line: #c8d2d8; --muted: #4f5d68; --ink: #16202c; --accent: #2463c4; --on-accent: #fafcfd;
+        --body: "Barlow", "Helvetica Neue", Helvetica, Arial, sans-serif; --display: "Barlow Semi Condensed", "Arial Narrow", Arial, sans-serif;
+        --mono: ui-monospace, Menlo, Consolas, monospace; color-scheme: light; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --paper: #0f151c; --panel: #18212b; --line: #2b3742; --muted: #9eabb6; --ink: #e4eaee; --accent: #7aa7ec; --on-accent: #0f151c; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --paper: #0f151c; --panel: #18212b; --line: #2b3742; --muted: #9eabb6; --ink: #e4eaee; --accent: #7aa7ec; --on-accent: #0f151c; color-scheme: dark; }
+body { background: var(--paper); color: var(--ink); margin: 0; padding-inline: 16px; padding-block: 28px 64px; font: 400 17px/1.6 var(--body); }
+a { color: var(--ink); text-decoration-color: var(--accent); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+a:hover { color: var(--accent); }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.site { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem 1.2rem; margin: 0 0 1.8rem; padding-bottom: .6rem; border-bottom: 1px solid var(--line); }
+.site .home { font: 700 1.35rem/1.1 var(--display); letter-spacing: .08em; text-decoration: none; }
+.site nav { margin-left: auto; display: flex; flex-wrap: wrap; gap: .2rem 1rem; }
+.site nav a[aria-current] { text-decoration: none; color: var(--accent); }
+
+main { max-width: 46rem; margin: 0 auto; }
+h1 { font: 700 3.6rem/1 var(--display); letter-spacing: .1em; margin: 0 0 .5rem; }
+.sub { color: var(--muted); margin: 0 0 1.4rem; padding-bottom: 1rem; border-bottom: 1px solid var(--line); }
+.lede { font-size: 1.15rem; margin: 0 0 1.6rem; max-width: 40rem; }
+.hero { display: block; width: 100%; height: auto; border-radius: 10px; margin: 0 0 1.8rem; }
+.ways { display: grid; gap: 10px; margin: 0 0 1rem; }
+.ways a { display: block; text-decoration: none; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 16px; }
+.ways a:hover { border-color: var(--accent); color: var(--ink); }
+.ways a:first-child { background: var(--accent); border-color: var(--accent); }
+.ways a:first-child, .ways a:first-child span { color: var(--on-accent); }
+.ways strong { display: block; font: 600 1.25rem/1.3 var(--display); letter-spacing: .06em; text-transform: uppercase; }
+.ways span { color: var(--muted); font-size: .95rem; }
+.ways em.v { font-style: normal; text-transform: none; letter-spacing: .02em; }
+.ways code { font: .88em var(--mono); overflow-wrap: anywhere; }
+h2 { font: 600 1.55rem/1.2 var(--display); letter-spacing: .03em; margin: 2.8rem 0 .9rem; padding-top: .9rem; border-top: 1px solid var(--line); }
+.models { display: block; width: 100%; max-width: 34rem; height: auto; border-radius: 10px; margin: 0 0 1.2rem; }
+ul { padding-left: 1.2rem; margin: 0 0 1rem; }
+li { margin: 0 0 .5rem; max-width: 68ch; }
+li::marker { color: var(--accent); }
+p { max-width: 68ch; }
+p.small { color: var(--muted); font-size: .9rem; margin-top: 2.4rem; }
+</style>
+</head>
+<body>
+<main>
+<h1>MIN-1</h1>
+<p class="sub">Minimalist music for the M-VAVE FM-1, by Reytian. Inspired by <a href="https://github.com/charlesvestal/fm1-amb">FM1-AMB</a> and Philip Glass.</p>
+<p class="lede">MIN-1 turns the FM-1 into a small minimalist ensemble, in the manner of the music of the
+1960s to 80s that was made from very little: repeating figures, slow cycles of chords, processes you can
+hear. It plays itself from the moment it's switched on; then you take over as much as you like.</p>
+<img class="hero" src="img/min1.png" width="1920" height="1080" alt="MIN-1 in the browser emulator: the FM-1, and its screen at twice the size">
+<nav class="ways" aria-label="Get MIN-1">
+  <a href="emu/"><strong>Try it in your browser</strong><span>The same code the FM-1 runs, with sound. Mouse, touch or keyboard; no FM-1 needed.</span></a>
+  <a href="install/"><strong>Install <em class="v">v0.2.1</em></strong><span>From Chrome or Edge, with the FM-1 connected by USB. Nothing to install on the computer.</span></a>
+  <a href="manual/"><strong>Manual</strong><span>The keys, the pages, from listening to making: everything in one page.</span></a>
+  <a href="firmware/min-0.2.1.fwsc"><strong>Download <em class="v">min-0.2.1.fwsc</em></strong><span>For the command-line installer: <code>python3 tools/fm1_install.py min-0.2.1.fwsc</code></span></a>
+  <a href="https://github.com/Reytian/fm1-min1/releases/download/v0.2/min1-demo.mp4"><strong>Watch the demo</strong><span>3:49, recorded from the browser emulator, no voice-over (MP4, 21 MB).</span></a>
+  <a href="https://github.com/Reytian/fm1-min1"><strong>Source</strong><span>GitHub, GPL-3.0. Built on Felucca by Hügelton Instruments, by way of X0X, FoMni and AMB-1.</span></a>
+</nav>
+
+<h2>Four models, twenty pieces</h2>
+<img class="models" src="img/models.png" width="1080" height="1000" loading="lazy" alt="The four models on the FM-1's screen: Arpeggio, Phase, Patterns, Bells">
+<ul>
+  <li><b>Arpeggio.</b> Figures of the chord's tones, two against three; the additive process grows and shrinks them a note at a time.</li>
+  <li><b>Phase.</b> Two parts play one figure; the lower slowly drifts ahead, locks in a step ahead, drifts on, round to unison.</li>
+  <li><b>Patterns.</b> A chain of short patterns, each a little changed from the last; three players move along it at their own pace over a high pulse.</li>
+  <li><b>Bells.</b> A melody walks the scale by step in phrases that grow from one note; a bell answers each note with the chord's nearest tone.</li>
+</ul>
+<p>No music theory needed: in EASY keys every white key is a chord that fits. EDIT rolls ideas and keeps
+the ones you like, SEL + REC learns your own chord cycle, and REC records a song that PLAY plays back exactly.</p>
+
+<h2 lang="zh-Hans">中文简介</h2>
+<p lang="zh-Hans">MIN-1 是 M-VAVE FM-1 的极简主义音乐固件，受 FM1-AMB 与 Philip Glass 启发。开机就自己演奏：重复的音型、缓慢的和弦循环、听得见的过程；然后交给你：按住白键就是和弦（不需要乐理），EDIT 随机出点子，教它你自己的和弦循环，亲手让声部进出，录下一首歌并原样回放。四种模型（琶音、相位、模式、钟声），二十首曲子。<a href="emu/">在浏览器里试玩</a>，或用 Chrome / Edge <a href="install/">安装</a>。</p>
+
+<p class="small">Installing firmware is at your own risk. To go back to the official firmware, use the
+installer's "Back to the stock firmware", or M-VAVE's updater, M-UPGRADE, from
+<a href="https://www.m-vave.com/download">m-vave.com/download</a>. M-VAVE and FM-1 are trademarks of their
+owners. MIN-1 is not affiliated with M-VAVE, Hügelton Instruments, Charles Vestal, Philip Glass, or any composer.</p>
+</main>
+</body>
+</html>
