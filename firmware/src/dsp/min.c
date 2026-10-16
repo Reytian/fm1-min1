@@ -185,6 +185,14 @@ static uint16_t rot12(uint32_t m, int r)        /* pitch classes moved up r semi
     return (uint16_t)(((m << r) | (m >> (12 - r))) & 0xFFFu);
 }
 
+static int tones(uint32_t m)                    /* how many pitch classes */
+{
+    int n = 0;
+    for (m &= 0xFFFu; m; m &= m - 1u)
+        n++;
+    return n;
+}
+
 /* a small dice of its own for the pure generators (xorshift32 from a seed) */
 static uint32_t lr_next(uint32_t *r)
 {
@@ -288,8 +296,16 @@ int en_cycle_minor(int c, int seed)
 {
     if (c == EN_CYC_ROLLED)                     /* a rolled cycle's key: the seed's last bit */
         return seed & 1;
-    if (c >= EN_NCYCLES) {                      /* the first chord's third, above its bass */
-        uint16_t m = mine_n ? rot12(mine_mask[0], -(int)mine_bass[0]) : 0;
+    if (c >= EN_NCYCLES) {                      /* the scale on the root that holds more of its chords' tones, */
+        int k, fit = 0;                         /* major or natural minor; a tie: the first chord's third, */
+        uint16_t m;                             /* above its bass */
+        for (k = 0; k < mine_n; k++) {
+            uint32_t t = mine_mask[k] | 1u << (mine_bass[k] % 12u);
+            fit += tones(t & ~0x5ADu) - tones(t & ~0xAB5u);
+        }
+        if (fit)
+            return fit < 0;
+        m = mine_n ? rot12(mine_mask[0], -(int)mine_bass[0]) : 0;
         return (m >> 3 & 1u) && !(m >> 4 & 1u);
     }
     return CYCLES[c < 0 ? 0 : c].minor;
@@ -331,7 +347,7 @@ void en_spell(int root, int minor)
 {
     int r = ((root + (minor ? 3 : 0)) % 12 + 12) % 12, i;     /* the major key with the same signature */
     uint16_t sc = rot12(0xAB5u, r);                          /* its scale */
-    int sharps = r == 7 || r == 2 || r == 9 || r == 4 || r == 11 || r == 6;
+    int sharps = r == 7 || r == 2 || r == 9 || r == 4 || r == 11 || (r == 6 && !minor);   /* F#, but Eb minor */
     for (i = 0; i < 12; i++)
         spelled[i] = (sc >> i & 1u) && sharps ? NAME_SHARP[i] : NAME_FLAT[i];
     if (minor)

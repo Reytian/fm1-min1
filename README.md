@@ -11,10 +11,10 @@ you take over as much as you like: play your own chords (no theory needed: in EA
 chord that fits), roll ideas and keep the ones you like, bring parts in and out by hand, put processes
 on the figures, and record it all as a song.
 
-- **Download the firmware file**: [releases](https://github.com/Reytian/fm1-min1/releases) (`min-0.2.fwsc`)
+- **Download the firmware file**: [releases](https://github.com/Reytian/fm1-min1/releases) (`min-0.2.1.fwsc`)
 - **Watch the demo** (3:49, recorded from the browser emulator, no voice-over):
   [min1-demo.mp4](https://github.com/Reytian/fm1-min1/releases/download/v0.2/min1-demo.mp4)
-- **Install it**: `python3 tools/fm1_install.py min-0.2.fwsc` over USB (see [BUILDING.md](BUILDING.md#install))
+- **Install it**: `python3 tools/fm1_install.py min-0.2.1.fwsc` over USB (see [BUILDING.md](BUILDING.md#install))
 
 ## Four models
 

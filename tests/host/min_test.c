@@ -103,7 +103,8 @@ static void test_pure(void)
     CHECK(!strcmp(en_chord_name(0x291, 7, nm), "Am7/G"), "Am7/G: %s", nm);
     CHECK(!strcmp(en_chord_name(0x291, 0, nm), "C6"), "C6: %s", nm);
     CHECK(!strcmp(en_chord_name(0x221, 9, nm), "F/A"), "F/A: %s", nm);
-    /* spelling: F minor's VI is Db; A major's iii is C#m; D minor's leading tone is C# */
+    /* spelling: F minor's VI is Db; A major's iii is C#m; D minor's leading tone is C#; E-flat minor's iv
+     * is Abm (flats, not D# minor's sharps), its leading tone D */
     en_spell(5, 1);
     CHECK(!strcmp(en_chord_name(0x122, 1, nm), "Db"), "Db in F minor: %s", nm);
     en_spell(9, 0);
@@ -112,6 +113,9 @@ static void test_pure(void)
     CHECK(!strcmp(en_note_name(1), "C#"), "C# in D minor: %s", en_note_name(1));
     en_spell(7, 0);
     CHECK(!strcmp(en_note_name(3), "Eb"), "Eb (borrowed) in G major: %s", en_note_name(3));
+    en_spell(3, 1);
+    CHECK(!strcmp(en_chord_name(0x908, 8, nm), "Abm"), "Abm in E-flat minor: %s", nm);
+    CHECK(!strcmp(en_note_name(2), "D"), "D in E-flat minor: %s", en_note_name(2));
     en_spell(0, 0);
     /* a key alone: the triad of the cycle's key on it */
     CHECK(en_triad(2, 9, 1) == 0x224, "D in A minor: D minor %03x", en_triad(2, 9, 1));
@@ -271,6 +275,60 @@ static void test_mine(void)
     en_mine(0, MASK, BASS);                      /* none: the first cycle stands in */
     run(0.1, &m);
     CHECK(en_cyc_n == 4, "no Mine: the library's first, %d", en_cyc_n);
+}
+
+/* Mine's key: the scale on the root that holds more of its chords' tones. LEARN on EASY keys in Evening
+ * (E-flat major), Cm Ab Eb Bb, from a minor chord: the key stays major, its pads (the fourth white key
+ * Ab, not Abm) and its flats (not G# D# A#). III VI VII in A minor stays minor; a tie, the first chord's
+ * third */
+static void test_mine_key(void)
+{
+    static const uint8_t KEY[4] = {9, 6, 0, 7};  /* white keys 6, 4, 1, 5 (D4 B3 F3 C4): vi IV I V */
+    static const char *const NAME[4] = {"Cm", "Ab", "Eb", "Bb"};
+    static const uint16_t CFG[3] = {0x488, 0x109, 0x424};   /* III VI VII, relative (C F G in A minor) */
+    static const uint8_t CFG_BASS[3] = {3, 8, 10};
+    static const uint16_t TIE[3] = {0x089, 0x091, 0x089};   /* i I i: five of their six tones in each scale */
+    static const uint8_t TIE_BASS[3] = {0, 0, 0};
+    int16_t par[P_NPARAMS];
+    uint16_t mask[4];
+    uint8_t bass[4];
+    char nm[16];
+    meas_t m = {0};
+    int k, b, root, minor;
+    en_piece(5, par);
+    root = par[P_ROOT];
+    minor = en_cycle_minor(par[P_CYCLE], par[P_SEED_CYC]);
+    CHECK(!strcmp(en_piece_name(5), "Evening") && root == 3 && !minor && !par[P_KEYS], "Evening: E-flat major, EASY");
+    start(5);
+    en_spell(root, minor);
+    for (k = 0; k < 4; k++) {                    /* learned as ui.c learns them: relative to the root */
+        uint32_t c = en_pad(KEY[k], root, minor, &b);
+        CHECK(!strcmp(en_chord_name(c, b, nm), NAME[k]), "chord %d played: %s", k + 1, nm);
+        mask[k] = (uint16_t)((c << (12 - root) | c >> root) & 0xFFFu);
+        bass[k] = (uint8_t)((b - root + 12) % 12);
+    }
+    en_mine(4, mask, bass);
+    en_set(P_CYCLE, EN_CYC_MINE);
+    run(0.5, &m);
+    minor = en_cycle_minor(EN_CYC_MINE, par[P_SEED_CYC]);
+    CHECK(!minor, "Mine from Cm in E-flat major: the key stays major");
+    CHECK(en_pad(6, root, minor, &b) == 0x109 && b == 8, "white key 4: Ab (%03x over %d)", en_pad(6, root, minor, &b), b);
+    en_spell(root, minor);
+    CHECK(en_cyc_n == 4, "Mine: %d chords", en_cyc_n);
+    for (k = 0; k < 4 && k < en_cyc_n; k++)
+        CHECK(!strcmp(en_chord_name(en_cyc_mask[k], en_cyc_bass[k], nm), NAME[k]), "Mine's chord %d: %s", k + 1, nm);
+    CHECK(!strcmp(en_note_name(8), "Ab") && !strcmp(en_note_name(10), "Bb"), "flats: %s %s", en_note_name(8),
+          en_note_name(10));
+    en_spell(0, 0);
+    en_mine(3, CFG, CFG_BASS);
+    run(0.1, &m);
+    CHECK(en_cycle_minor(EN_CYC_MINE, 0), "III VI VII from a major chord: the key stays minor");
+    en_mine(2, TIE, TIE_BASS);
+    run(0.1, &m);
+    CHECK(en_cycle_minor(EN_CYC_MINE, 0), "a tie, i I: minor (the first chord's)");
+    en_mine(2, TIE + 1, TIE_BASS);
+    run(0.1, &m);
+    CHECK(!en_cycle_minor(EN_CYC_MINE, 0), "a tie, I i: major (the first chord's)");
 }
 
 /* the guard: a block over 90% brings it on; 3 s under 65% take it off */
@@ -497,6 +555,7 @@ int main(void)
     test_repeatable();
     test_parts();
     test_mine();
+    test_mine_key();
     test_guard();
     test_rolled();
     test_pads();
