@@ -11,10 +11,12 @@ you take over as much as you like: play your own chords (no theory needed: in EA
 chord that fits), roll ideas and keep the ones you like, bring parts in and out by hand, put processes
 on the figures, and record it all as a song.
 
+- **Try it in your browser** (no FM-1 needed): <https://reytian.github.io/fm1-min1/emu/>
+- **Install it** (Chrome or Edge, with the FM-1 plugged in): <https://reytian.github.io/fm1-min1/install/>,
+  or from the command line: `python3 tools/fm1_install.py min-0.2.1.fwsc` (see [BUILDING.md](BUILDING.md#install))
 - **Download the firmware file**: [releases](https://github.com/Reytian/fm1-min1/releases) (`min-0.2.1.fwsc`)
 - **Watch the demo** (3:49, recorded from the browser emulator, no voice-over):
   [min1-demo.mp4](https://github.com/Reytian/fm1-min1/releases/download/v0.2/min1-demo.mp4)
-- **Install it**: `python3 tools/fm1_install.py min-0.2.1.fwsc` over USB (see [BUILDING.md](BUILDING.md#install))
 
 ## Four models
 
@@ -86,7 +88,8 @@ every piece to `build/render/` and prints how hard each would work the FM-1's pr
 instructions it runs (calibrated against X0X's published PERF TEST figures).
 
 Installing firmware is at your own risk. An FM-1 that fails to start twice comes up in a safe mode with
-USB on, and M-VAVE's own firmware can always be put back (see BUILDING.md).
+USB on, and M-VAVE's own firmware can always be put back: the web installer's "Back to the stock
+firmware", or see BUILDING.md.
 
 ## Credits
 
@@ -109,4 +112,5 @@ Instruments, Charles Vestal, Philip Glass, or any composer.
 MIN-1 是 M-VAVE FM-1 的极简主义音乐固件，受 FM1-AMB 与 Philip Glass 启发。开机就自己演奏：重复的音型、
 缓慢的和弦循环、听得见的过程；然后交给你：按住白键就是和弦（不需要乐理），EDIT 随机出点子，教它你自己的和弦循环，
 亲手让声部进出，录下一首歌并原样回放。四种模型（琶音、相位、模式、钟声），二十首曲子。设计说明见
-[docs/DESIGN.md](docs/DESIGN.md)。
+[docs/DESIGN.md](docs/DESIGN.md)。在浏览器里试玩：<https://reytian.github.io/fm1-min1/emu/>；
+用 Chrome 或 Edge 安装：<https://reytian.github.io/fm1-min1/install/>。

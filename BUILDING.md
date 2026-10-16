@@ -72,6 +72,9 @@ script (the command list is at the top of `host/min_host.c`).
 
 ## Install
 
+From Chrome or Edge, with nothing to install: <https://reytian.github.io/fm1-min1/install/> (Web MIDI;
+it can also put M-VAVE's stock firmware back).
+
 From the command line (needs `pip3 install mido python-rtmidi`):
 
 ```
@@ -83,6 +86,16 @@ Installing firmware is at your own risk. Hold OCT− and OCT+ for 5 seconds for 
 mode. If the FM-1 no longer starts but reaches the chip's update mode (4C4A:8057 on USB),
 `tools/fm1_rescue.sh` puts stock firmware back from a Mac; otherwise recovery needs
 [FM-1-transporter](https://github.com/kurogedelic/FM-1-transporter).
+
+## Publishing a release
+
+1. `./build.sh --release X.Y` (the identity, FM-1_5XXYYZZ, is what the installer checks).
+2. `tools/publish_pages.sh X.Y`: builds the site (landing page, manual, browser emulator, web
+   installer, firmware) from the last commit with `tools/make_pages.py` and pushes it to the `gh-pages`
+   branch, which GitHub Pages serves at <https://reytian.github.io/fm1-min1/>. The manual is this
+   README (`tools/manual_html.py` turns it into the page). `-n` builds `build/pages` without pushing:
+   `python3 -m http.server -d build/pages` to look at it. Needs Emscripten and Python with Pillow.
+3. `gh release create vX.Y build/min-X.Y.fwsc` for the command-line download.
 
 ## The load on the FM-1
 

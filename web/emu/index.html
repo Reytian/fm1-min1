@@ -7,7 +7,7 @@
 <meta name="description" content="MIN-1, a minimalist ensemble firmware for the M-VAVE FM-1, in your browser: the same code the FM-1 runs.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600&family=Barlow+Semi+Condensed:wght@600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600&family=Barlow+Semi+Condensed:wght@600;700&display=swap" media="print" onload="this.media='all'">
 <style>
 /* the colours of MIN-1's screen (firmware/src/app/ui.c): cool paper, dark blue ink, a colour a part
  * (cobalt, teal, slate, amber, violet), coral for the player: the chord held, LEARN, a song recording. The FM-1 itself
@@ -96,9 +96,9 @@ kbd { font: 600 .85em ui-monospace, Menlo, monospace; background: var(--panel); 
 <body>
 <main>
 <header>
-  <h1>MIN-1</h1>
+  <h1><a href="../" style="color:inherit;text-decoration:none" title="MIN-1 home">MIN-1</a></h1>
   <p>a minimalist ensemble for the FM-1, in the browser: the same code the FM-1 runs</p>
-  <nav><a href="../emu/" aria-current="page">Emulator</a><a href="../install/">Install</a><a href="../manual/">Manual</a></nav>
+  <nav><a href="../emu/" aria-current="page">Emulator</a><a href="../install/">Install</a><a href="../manual/">Manual</a><a href="https://github.com/Reytian/fm1-min1">Source</a></nav>
 </header>
 
 <p class="turn">Turn your phone sideways for bigger controls.</p>
@@ -239,7 +239,7 @@ kbd { font: 600 .85em ui-monospace, Menlo, monospace; background: var(--panel); 
   <div class="wide">
     <h2>Saving</h2>
     <p>SAVE keeps the pieces and the songs in this browser, as the FM-1 keeps them in its memory; MIN-1 also saves by itself a few seconds after a change while it is stopped. Factory reset forgets them.
-      It is the firmware, not a recording: what you hear is MIN-1 running at the FM-1's 44.1 kHz. In claude.ai a recording is saved as a zip with the WAV inside, since a WAV can't be saved from there directly.
+      It is the firmware, not a recording: what you hear is MIN-1 running at the FM-1's 44.1 kHz.
       The emulator comes from Charles Vestal's AMB-1, and the idea of running FM-1 firmware in the browser from <a href="https://www.groove-os.com/">Groove OS</a>.</p>
   </div>
 </section>
