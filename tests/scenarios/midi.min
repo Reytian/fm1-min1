@@ -1,0 +1,19 @@
+# MIDI in: notes held (any channel) are a chord, as the keys are; let go, the cycle at its next chord.
+# MIDI out: each part's notes on its channel
+wait 500
+expect midi_out >10
+midi 90 3C 64
+midi 90 40 64
+midi 90 43 64
+wait 200
+expect yours 1
+expect chordmask 0x091
+midi 80 3C 00
+midi 80 40 00
+midi 80 43 00
+wait 3000
+expect yours 0
+# external clock: ticks drive it, and it says EXT
+midi FA 00 00
+wait 20
+expect ext 1

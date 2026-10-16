@@ -1,0 +1,30 @@
+# EASY keys and HOLD: a white key is a chord of the key; with HOLD a chord stays when let go, until the
+# same keys are played again
+wait 500
+key 9 down
+wait 300
+expect chordmask 0x221
+expect chordbass 5
+key 9 up
+wait 3000
+expect yours 0
+tap GLO
+spin K4 1
+expect par27 1
+tapkey 9
+wait 300
+expect yours 1
+expect latched 1
+wait 5000
+expect yours 1
+expect chordmask 0x221
+tapkey 9
+wait 3000
+expect latched 0
+expect yours 0
+# two keys: a richer chord (i and III: Am with C's G, Am7)
+tapkey 0
+wait 100
+chord 300 0 4
+wait 300
+expect chordmask 0x291

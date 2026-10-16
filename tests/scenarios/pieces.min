@@ -1,0 +1,43 @@
+# the pieces: PRESETS picks one, each remembers its settings, SAVE held resets one, all saved
+wait 500
+expect piece 0
+tap ENV
+spin K1 -10
+expect par4 65
+turn PRESET 1
+expect piece 1
+expect par24 132
+expect par30 1
+wait 8000
+shot glacier.png
+turn PRESET 1
+expect piece 2
+wait 8000
+shot lagoon.png
+turn PRESET 2
+expect piece 4
+wait 8000
+shot skyline.png
+turn PRESET -4
+expect piece 0
+expect par4 65
+# SAVE held: Morning's recipe again, nothing saved
+press SAVE
+wait 1700
+release SAVE
+expect par4 75
+expect store_writes 0
+# a change, saved, survives a reboot, on the piece it was made on
+tap ENV
+spin K1 5
+expect par4 80
+turn PRESET 3
+expect piece 3
+tap SAVE
+expect store_writes 1
+reboot
+wait 300
+expect piece 3
+turn PRESET -3
+expect piece 0
+expect par4 80

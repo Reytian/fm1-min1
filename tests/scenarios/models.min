@@ -1,0 +1,18 @@
+# the models: a piece of each, a look at its screen
+wait 500
+turn PRESET 8
+expect piece 8
+expect par28 1
+wait 12000
+expect phase10 >0
+shot phase.png
+turn PRESET 4
+expect piece 12
+expect par28 2
+wait 12000
+shot patterns.png
+turn PRESET 4
+expect piece 16
+expect par28 3
+wait 12000
+shot bells.png

@@ -1,0 +1,28 @@
+# BY HAND: SEL + a page button brings its part in or out at the next chord (Build to 0: the arrangement
+# is yours); SEL + white keys: processes on the page's arpeggio
+wait 500
+press SEL
+wait 100
+shot sel_map.png
+tap ENV
+release SEL
+expect par1 0
+wait 3000
+expect part0 0
+press SEL
+tap ENV
+release SEL
+wait 3000
+expect part0 1
+tap ENV
+press SEL
+tapkey w0
+release SEL
+wait 3000
+expect figuser0 1
+shot grow.png
+press SEL
+tapkey w4
+release SEL
+wait 3000
+expect figuser0 0

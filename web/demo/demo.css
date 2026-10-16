@@ -1,0 +1,72 @@
+/* SPDX-License-Identifier: GPL-3.0-only */
+/* MIN-1's demo video: the emulator page as a 1920 x 1080 stage. Dark; the FM-1 on the left, on the right its
+ * screen at twice the size and the captions, the chapters along the bottom. The video's time is not the
+ * clock's, so nothing moves by itself: demo.js sets every fade from the video's time. */
+*, *::before, *::after { transition: none !important; animation: none !important; }
+html, body { width: 1920px; height: 1080px; overflow: hidden; }
+body { margin: 0; padding: 0; background: radial-gradient(1400px 900px at 38% 52%, #141c26 0%, #0b1016 70%); }
+main { max-width: none; margin: 0; }
+main > header, .turn, .bar, .help, .start { display: none !important; }
+.device { position: absolute; left: 64px; top: 150px; width: 1250px; }
+.held .btnface, .held .keyface { stroke: #ef7a6c; stroke-width: 5; }
+
+#stage { position: absolute; inset: 0; pointer-events: none; color: #e4eaee; font-family: Barlow, "Helvetica Neue", Arial, sans-serif; }
+#stage .zh { font-family: "PingFang SC", "Hiragino Sans GB", "Heiti SC", sans-serif; }
+#stage .lat { font-family: Barlow, "Helvetica Neue", Arial, sans-serif; }
+#stage .cap .en .lat, #stage .chapters .lat { font-family: inherit; }
+.brand { position: absolute; left: 66px; top: 50px; display: flex; align-items: baseline; gap: 22px; white-space: nowrap; }
+.brand b { font: 700 46px/1 "Barlow Semi Condensed", "Arial Narrow", sans-serif; letter-spacing: .1em; }
+.brand span { font-size: 25px; color: #9eabb6; }
+.brand span.zh { font-size: 22px; }
+.where { position: absolute; right: 54px; top: 50px; text-align: right; font-size: 20px; line-height: 1.45; color: #7d8a95; }
+.where .zh { font-size: 18px; }
+
+.zoom { position: absolute; left: 1364px; top: 150px; width: 480px; height: 480px; padding: 12px; background: #111214; border-radius: 22px;
+        box-shadow: 0 18px 50px rgba(0, 0, 0, .45); }
+.zoom canvas { display: block; width: 480px; height: 480px; image-rendering: pixelated; border-radius: 4px; }
+
+.cap { position: absolute; left: 1366px; top: 676px; width: 500px; }
+.cap .ch { font: 600 17px/1.2 "Barlow Semi Condensed", sans-serif; letter-spacing: .14em; color: #7aa7ec; margin-bottom: 14px; }
+.cap .ch span { font-family: "PingFang SC", "Hiragino Sans GB", sans-serif; letter-spacing: .08em; margin-left: .4em; }
+.cap .en { font: 600 33px/1.16 "Barlow Semi Condensed", sans-serif; letter-spacing: .01em; color: #f2f5f7; text-wrap: balance; }
+.cap .zh { font-size: 26px; line-height: 1.35; font-weight: 500; color: #f2f5f7; margin-top: 6px; }
+.cap .d { font-size: 21px; line-height: 1.35; color: #a9b5bf; margin-top: 16px; text-wrap: pretty; }
+.cap .dz { font-size: 19px; line-height: 1.45; color: #a9b5bf; margin-top: 4px; }
+.cap .zh, .cap .d, .cap .dz { text-wrap: pretty; }
+.cap b { color: #f2f5f7; font-weight: 600; }
+
+.chip { position: absolute; left: 66px; top: 121px; height: 0; display: flex; align-items: center; gap: 12px; opacity: 0; }
+.chip kbd { font: 600 21px/1 "Barlow Semi Condensed", sans-serif; letter-spacing: .08em; color: #0b1016; background: #ef8a7e;
+            border-radius: 8px; padding: 8px 14px 7px; box-shadow: 0 3px 0 #b85f55; }
+.chip em { font: 600 22px/1 Barlow, sans-serif; font-style: normal; color: #ef8a7e; }
+
+.chapters { position: absolute; left: 64px; right: 54px; top: 988px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; }
+.chapters > div { position: relative; padding-top: 14px; font-size: 18px; color: #5c6975; white-space: nowrap; overflow: hidden; }
+.chapters > div::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px; border-radius: 2px; background: #1f2a35; }
+.chapters > div i { position: absolute; left: 0; top: 0; height: 4px; border-radius: 2px; background: #7aa7ec; width: 0; }
+.chapters .n { font: 600 18px "Barlow Semi Condensed", sans-serif; margin-right: 8px; }
+.chapters .en { font: 600 19px "Barlow Semi Condensed", sans-serif; letter-spacing: .04em; }
+.chapters .zh { margin-left: 8px; font-size: 16px; }
+.chapters > .past { color: #8794a0; }
+.chapters > .on { color: #e4eaee; }
+.chapters > .on .n, .chapters > .on .en { color: #7aa7ec; }
+
+.rings { position: absolute; inset: 0; }
+.ring { position: absolute; border-radius: 50%; border: 4px solid rgba(255, 255, 255, .92); background: rgba(255, 255, 255, .16);
+        box-shadow: 0 0 0 3px rgba(239, 122, 108, .55), 0 0 26px rgba(255, 255, 255, .35); box-sizing: border-box; }
+
+.card { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(8, 12, 17, .86); }
+.card .in { text-align: center; }
+.card h1 { font: 700 132px/1 "Barlow Semi Condensed", sans-serif; letter-spacing: .12em; margin: 0 0 18px; color: #f2f5f7; }
+.card .t { font: 400 36px/1.3 Barlow, sans-serif; color: #c9d2d9; }
+.card .tz { font-size: 30px; color: #c9d2d9; margin-top: 8px; }
+.card .s { font-size: 23px; color: #8b98a4; margin-top: 46px; line-height: 1.6; }
+.card .sz { font-size: 20px; color: #8b98a4; }
+.card .models { display: flex; justify-content: center; gap: 40px; margin-top: 44px; font: 600 26px "Barlow Semi Condensed", sans-serif;
+                letter-spacing: .14em; color: #7aa7ec; }
+.card.end { background: rgba(8, 12, 17, .9); }
+
+/* stills (record.mjs --clean): no captions or chapters, the screen beside the FM-1's middle */
+.clean .cap, .clean .chapters, .clean .chip { display: none; }
+.clean .zoom { top: 298px; }
+.clean .brand .zh, .clean .where .zh { display: none; }

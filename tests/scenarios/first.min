@@ -1,0 +1,71 @@
+# a first look and listen: it plays from power-on (Morning); the pages; the keys take the chord
+wav first.wav
+wait 300
+expect playing 1
+expect piece 0
+expect cycn 4
+wait 8000
+shot form.png
+expect beats >10
+expect notes0 >20
+expect notes1 >10
+wait 20000
+wavstop
+expect peak_db_max -1
+expect peak_db_min -40
+tap ENV
+wait 100
+shot upper.png
+tap ARP
+wait 100
+shot lower.png
+tap LFO
+wait 100
+shot bass.png
+tap SEQ
+wait 100
+shot lead.png
+tap FX
+wait 100
+shot chords.png
+tap GLO
+wait 100
+shot setup.png
+# SELECT steps through the pages (eight: GLO twice is SYSTEM), from the last back to the first
+tap GLO
+wait 100
+shot system.png
+turn SELECT -7 100
+expect view 0
+# EASY keys (the default): the leftmost white key is the key's tonic chord, A minor here
+expect yours 0
+key 0 down
+wait 300
+expect yours 1
+expect chordmask 0x211
+expect chordbass 9
+shot yours.png
+key 0 up
+# let go: it holds to the cycle's next chord (a bar, 2.4 s at 100), then the cycle again
+wait 3000
+expect yours 0
+# NOTES keys: the notes themselves; one key, the key's triad on it (A minor: D is iv, D minor)
+tap GLO
+spin K3 1
+expect par26 1
+key 7 down
+key 11 down
+key 14 down
+wait 300
+expect chordmask 0x091
+expect chordbass 0
+key 7 up
+key 11 up
+key 14 up
+wait 3000
+key 9 down
+wait 300
+expect chordmask 0x224
+expect chordbass 2
+key 9 up
+wait 100

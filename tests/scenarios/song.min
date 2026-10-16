@@ -1,0 +1,50 @@
+# SONGS: REC records from the top, all that is done; REC again keeps it (and shows SONGS); PLAY plays it
+# back; SAVE keeps it in flash, past a reboot; SEL + PLAY: songs / live
+wait 500
+expect mode 0
+tap REC
+expect song_state 1
+wait 1500
+shot song_rec.png
+key 0 down
+wait 600
+key 0 up
+wait 1000
+tap ENV
+spin K1 -20
+wait 2000
+tap REC
+wait 50
+expect song_state 0
+expect mode 1
+expect song_used 1
+expect song_events >1
+shot song_kept.png
+tap PLAY
+wait 100
+expect song_state 2
+wait 2000
+shot song_playing.png
+tap PLAY
+expect song_state 0
+tap SAVE
+expect store_writes >1
+reboot
+wait 300
+expect mode 0
+press SEL
+tap PLAY
+release SEL
+expect mode 1
+expect song_used 1
+tap PLAY
+wait 100
+expect song_state 2
+wait 6000
+# the take's end stops it
+expect song_state 0
+expect playing 0
+# PRESETS picks a slot; an empty one says so
+turn PRESET 1
+expect song_slot 1
+expect song_used 0

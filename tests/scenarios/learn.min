@@ -1,0 +1,43 @@
+# LEARN (SEL + REC): chords one at a time (keys down, then all up), REC again: they are the cycle (Mine),
+# kept with the piece and saved; ALGORITHM goes round the library, Mine and Rolled
+wait 500
+press SEL
+tap REC
+release SEL
+expect learning 1
+shot learn0.png
+# EASY pads in A minor: i (F3), VI (D4), iv (B3), V (C4)
+chord 300 0
+chord 300 9
+chord 300 6
+chord 300 7
+expect learnn 4
+shot learn4.png
+tap REC
+expect learning 0
+expect mine 4
+expect par30 18
+wait 6000
+expect cycn 4
+shot mine.png
+tap SAVE
+expect store_writes 1
+reboot
+wait 300
+expect mine 4
+expect par30 18
+expect cycn 4
+turn ALGO 1
+expect par30 19
+turn ALGO 1
+expect par30 0
+turn ALGO -2
+expect par30 18
+# fewer than two chords: not learned, the cycle stays
+press SEL
+tap REC
+release SEL
+chord 300 0
+tap REC
+expect learning 0
+expect mine 4

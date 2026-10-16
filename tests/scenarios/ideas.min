@@ -1,0 +1,26 @@
+# IDEAS: EDIT on a page rolls one (a cycle, a figure, a line ...); SEL + EDIT goes back to the one before
+wait 500
+tap HOME
+tap EDIT
+expect par30 19
+expect undo 1
+wait 3000
+shot idea_cycle.png
+tap ENV
+tap EDIT
+expect par7 8
+expect undo 2
+press SEL
+tap EDIT
+release SEL
+expect undo 1
+expect par7 2
+tap SEQ
+tap EDIT
+expect undo 2
+press SEL
+tap EDIT
+tap EDIT
+release SEL
+expect undo 0
+expect par30 5

@@ -1,0 +1,704 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MIN-1 in the browser</title>
+<meta name="description" content="MIN-1, a minimalist ensemble firmware for the M-VAVE FM-1, in your browser: the same code the FM-1 runs.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600&family=Barlow+Semi+Condensed:wght@600;700&display=swap">
+<style>
+/* the colours of MIN-1's screen (firmware/src/app/ui.c): cool paper, dark blue ink, a colour a part
+ * (cobalt, teal, slate, amber, violet), coral for the player: the chord held, LEARN, a song recording. The FM-1 itself
+ * stays dark, and its lights are the same in either theme. */
+:root { --paper: #ecf0f2; --panel: #fafcfd; --line: #c8d2d8; --muted: #4f5d68; --ink: #16202c; --accent: #2463c4; --on-accent: #fafcfd;
+        --upper: #2463c4; --lower: #168c96; --bass: #4c5674; --lead: #d4742c; --chords: #805eaa;
+        --lit: #b2ccec; --lit-ink: #16202c; --lit-key: #8fb3ea; --lit-play: #8fd6a0; --learn: #ef8a7e; --held: #ef7a6c; --latch: #7aa7ec;
+        --body: "Barlow", "Helvetica Neue", Helvetica, Arial, sans-serif; --display: "Barlow Semi Condensed", "Arial Narrow", Arial, sans-serif;
+        color-scheme: light; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --paper: #0f151c; --panel: #18212b; --line: #2b3742; --muted: #9eabb6; --ink: #e4eaee; --accent: #7aa7ec; --on-accent: #0f151c;
+                                    --upper: #7aa7ec; --lower: #4fc1c9; --bass: #a3add0; --lead: #eea062; --chords: #b79ae0; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --paper: #0f151c; --panel: #18212b; --line: #2b3742; --muted: #9eabb6; --ink: #e4eaee; --accent: #7aa7ec; --on-accent: #0f151c;
+                           --upper: #7aa7ec; --lower: #4fc1c9; --bass: #a3add0; --lead: #eea062; --chords: #b79ae0; color-scheme: dark; }
+body { background: var(--paper); color: var(--ink); margin: 0; padding-inline: 16px; padding-block: 28px 48px; font: 400 16px/1.55 var(--body); }
+main { max-width: 1040px; margin: 0 auto; }
+header { display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem 1.2rem; margin: 0 0 1rem; }
+h1 { font: 700 2.1rem/1.1 var(--display); letter-spacing: .08em; margin: 0; }
+header p { margin: 0; color: var(--muted); }
+header nav { margin-left: auto; display: flex; gap: 1rem; }
+header nav a[aria-current] { text-decoration: none; color: var(--accent); }
+a { color: var(--ink); text-decoration-color: var(--accent); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.device { position: relative; width: 100%; max-width: 100%; aspect-ratio: 1000 / 640; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: manipulation; }
+.device svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.hit { position: absolute; touch-action: none; cursor: pointer; -webkit-tap-highlight-color: transparent; border-radius: 12px; }
+.hit.knob { cursor: ns-resize; border-radius: 50%; }
+.hit:focus-visible { outline: 2px solid var(--latch); outline-offset: 2px; }
+.device canvas { position: absolute; left: 31.8%; top: 9.6875%; width: 20%; height: 31.25%; image-rendering: pixelated; background: #000; border-radius: 2px; }
+.btnface, .keyface { transition: fill .06s; }
+.lit .btnface { fill: var(--lit); }
+.lit text.btn { fill: var(--lit-ink); }
+.lit.play .btnface { fill: var(--lit-play); }
+.song-rec .lit.play .btnface, .lit.rec .btnface { fill: var(--learn); }
+.held .btnface, .held .keyface { stroke: var(--held); stroke-width: 3; }
+.latched .btnface { stroke: var(--latch); stroke-width: 3; }
+.lit .keyface { fill: var(--lit-key); }
+.start { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(10, 14, 20, .55); border-radius: 4.4% / 6.9%; }
+.start button { font: 600 1.2rem var(--display); letter-spacing: .1em; text-transform: uppercase; padding: .6em 1.6em; border: 0; border-radius: 6px;
+                background: var(--accent); color: var(--on-accent); cursor: pointer; }
+.start button:focus-visible { outline: 2px solid var(--panel); outline-offset: 3px; }
+.start button:disabled { opacity: .6; cursor: progress; }
+.start[hidden] { display: none; }
+.turn { display: none; margin: 0 0 .8rem; color: var(--muted); font-size: .92rem; }
+@media (orientation: portrait) and (max-width: 700px) { .turn { display: block; } }
+.bar { display: flex; flex-wrap: wrap; gap: .5rem 1.2rem; align-items: center; margin: .9rem 0 0; color: var(--muted); font-size: .92rem; }
+.bar button { font: inherit; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: .3em .8em; cursor: pointer; }
+.bar button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.bar .cpu { font-variant-numeric: tabular-nums; }
+.out { display: inline-flex; align-items: center; gap: .5rem; }
+.meter { width: 6rem; height: .45rem; border-radius: 3px; background: var(--line); overflow: hidden; }
+.meter span { display: block; height: 100%; width: 0; background: var(--accent); }
+.take { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .5rem .8rem; }
+#rec::before { content: ""; display: inline-block; width: .6em; height: .6em; border-radius: 50%; background: var(--held); margin-right: .45em; }
+#rec.on { border-color: var(--held); font-variant-numeric: tabular-nums; }
+.bar button:disabled { opacity: .55; cursor: default; }
+.help { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1.4rem 2rem; margin: 1.8rem 0 0; }
+.help > div { min-width: 0; }
+.help h2 { font: 600 1.25rem/1.2 var(--display); letter-spacing: .03em; margin: 0 0 .35rem; text-wrap: balance; }
+.help p, .help ul { margin: 0; color: var(--muted); max-width: 62ch; }
+.help ul { padding-left: 1.1rem; }
+.help li + li { margin-top: .2rem; }
+.help b { color: var(--ink); font-weight: 600; }
+.wide { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 1.2rem; }
+.wide > p { margin-bottom: .2rem; }
+.models { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 1rem 2rem; margin-top: .6rem; }
+.models > div { min-width: 0; }
+.models h3 { font: 600 1.05rem var(--display); letter-spacing: .03em; margin: 0 0 .2rem; }
+.models p + p { margin-top: .3rem; }
+.models .names { color: var(--ink); }
+.pages { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1rem 2rem; margin-top: .6rem; }
+.pages > div { min-width: 0; }
+.pages .form { grid-column: 1 / -1; }
+.form dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 0 2rem; }
+.knobs h3 { display: flex; align-items: center; gap: .45rem; font: 600 1.05rem var(--display); letter-spacing: .03em; margin: 0 0 .2rem; color: var(--ink); }
+.knobs h3 span { color: var(--muted); font-weight: 600; font-size: .85em; letter-spacing: .08em; }
+.knobs h3::before { content: ""; width: .7rem; height: .7rem; border-radius: 50%; flex: none; background: var(--part, transparent); box-shadow: inset 0 0 0 1.5px var(--part, var(--muted)); }
+.p-upper { --part: var(--upper); } .p-lower { --part: var(--lower); } .p-bass { --part: var(--bass); } .p-lead { --part: var(--lead); } .p-chords { --part: var(--chords); }
+.knobs dl { margin: 0; color: var(--muted); }
+.knobs dt { color: var(--ink); font-weight: 600; }
+.knobs dd { margin: 0 0 .45rem; }
+kbd { font: 600 .85em ui-monospace, Menlo, monospace; background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 0 .3em; color: var(--ink); }
+@media (prefers-reduced-motion: reduce) { .btnface, .keyface { transition: none; } }
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>MIN-1</h1>
+  <p>a minimalist ensemble for the FM-1, in the browser: the same code the FM-1 runs</p>
+  <nav><a href="../emu/" aria-current="page">Emulator</a><a href="../install/">Install</a><a href="../manual/">Manual</a></nav>
+</header>
+
+<p class="turn">Turn your phone sideways for bigger controls.</p>
+<div class="device" id="device">
+  <svg id="panel" viewBox="0 0 1000 640" role="application" aria-label="The FM-1: knobs, buttons, screen and keys"></svg>
+  <canvas id="screen" width="240" height="240" aria-label="The FM-1 screen"></canvas>
+  <div class="start" id="start"><button id="go" type="button">Switch on</button></div>
+</div>
+
+<div class="bar">
+  <span id="status">Off. It starts playing when you switch it on.</span>
+  <span class="out">Output <span class="meter" role="meter" aria-label="Output level" aria-valuemin="-60" aria-valuemax="0" aria-valuenow="-60"><span id="meter"></span></span></span>
+  <span class="cpu" id="cpu"></span>
+  <span class="take">
+    <button id="rec" type="button" disabled title="Record what you hear, to save as a WAV">Record audio</button>
+    <button id="save" type="button" hidden>Save recording</button>
+    <span id="recinfo" aria-live="polite"></span>
+  </span>
+  <button id="reset" type="button" title="Forget your changes, ideas, cycles and songs, and start again from the pieces' recipes">Factory reset</button>
+</div>
+
+<section class="help">
+  <div>
+    <h2>Playing</h2>
+    <ul>
+      <li><b>Keys</b> play the chord. In EASY keys, the default, each white key is a chord of the key, the tonic leftmost; a black key is the chord of the white key on its left with a seventh; several keys make a richer chord. The keys light where the cycle is, so you can play along.</li>
+      <li>Let go and the cycle comes back at its next chord. With <b>Hold</b> on (Setup) a chord stays until you play the same keys again. In NOTES keys (Setup) the notes you hold are the chord.</li>
+      <li><b>PLAY</b> plays and stops. <b>EDIT</b> rolls an idea for the page you are on: a new cycle, figure, line, bass or rhythm. SEL + EDIT goes back; ideas are kept with the piece.</li>
+      <li><b>ALGORITHM</b> the chord cycle (eighteen, then Mine and Rolled). <b>PRESETS</b> the piece; in SONGS, the song.</li>
+      <li><b>OCT−</b> / <b>OCT+</b> move the upper part an octave. <b>SAVE</b> saves; hold it to put the piece back to its recipe.</li>
+      <li>Hold a button for a second and a card says what it does.</li>
+    </ul>
+  </div>
+  <div>
+    <h2>By hand: SEL held</h2>
+    <p>Hold SEL (<kbd>Tab</kbd>, or Shift-click it) and the screen shows its map.</p>
+    <ul>
+      <li><b>ENV ARP LFO SEQ FX</b> bring their part in or out at the next chord; the arrangement is then yours (Build goes to 0).</li>
+      <li><b>White keys 1–8</b>: grow, shrink, shift, flip, still, slower, faster, a new section. On the Upper or Lower page they work on that part, elsewhere on both.</li>
+      <li><b>REC</b> learns a cycle: play two to eight chords one at a time, then REC; they become the cycle Mine. <b>EDIT</b> goes back to the idea before. <b>PLAY</b> switches between SONGS and LIVE.</li>
+    </ul>
+  </div>
+  <div>
+    <h2>Songs</h2>
+    <ul>
+      <li><b>REC</b> records a song from the top, everything you do, until REC again; then it is kept and MIN-1 switches to SONGS.</li>
+      <li>In SONGS, <b>PLAY</b> plays the song back exactly, <b>PRESETS</b> picks one of eight, and holding <b>SAVE</b> deletes it. SEL + PLAY goes back to LIVE.</li>
+      <li><b>Record audio</b>, under the FM-1, keeps what you hear: start it, play the song, stop it, and save a 16-bit stereo WAV to share.</li>
+    </ul>
+  </div>
+  <div>
+    <h2>The screen</h2>
+    <ul>
+      <li>At the top: the piece (in SONGS, the song), the key and the cycle, the tempo and the beat; a coral dot and the time while a song records.</li>
+      <li>The cycle's chords, the one playing filled. ROUND 2 OF 4 is the time round in this section; YOURS, in coral, when the keys have the chord.</li>
+      <li>A lane a part, in its colour, lit while it plays: the figures as dots (+ or − while the additive process grows or shrinks one), in Patterns each player's pattern, in Phase how far ahead the lower is.</li>
+      <li>At the bottom: the page's four knobs.</li>
+    </ul>
+  </div>
+  <div>
+    <h2>Mouse and touch</h2>
+    <ul>
+      <li>Drag a knob up or down, or use the scroll wheel over it.</li>
+      <li>Click or touch buttons and keys. On a touch screen several fingers work at once, so you can play chords and hold SEL.</li>
+      <li>With a mouse, <kbd>Shift</kbd>-click (or right-click) keys to hold a chord; click one of them to let it go. <kbd>Shift</kbd>-click a button to hold it down (SEL for its map, HOME for the tempo); click it again to let go.</li>
+    </ul>
+  </div>
+  <div>
+    <h2>Keyboard</h2>
+    <ul>
+      <li>White keys 1–8: <kbd>Q</kbd>–<kbd>I</kbd>, 9–16: <kbd>A</kbd>–<kbd>K</kbd>. Black keys 1–11: <kbd>1</kbd>–<kbd>0</kbd>, <kbd>-</kbd>. Hold several at once for a chord.</li>
+      <li><kbd>Tab</kbd> SEL, held: with <kbd>Q</kbd>–<kbd>I</kbd> the processes, with <kbd>Enter</kbd> learn a cycle. <kbd>Shift</kbd>+<kbd>Tab</kbd> still moves the focus.</li>
+      <li><kbd>Space</kbd> PLAY, <kbd>Enter</kbd> REC, <kbd>N</kbd> EDIT, <kbd>Esc</kbd> HOME, <kbd>Z</kbd> / <kbd>X</kbd> OCT− / OCT+.</li>
+      <li><kbd>↑</kbd> <kbd>↓</kbd> turn SELECT (with <kbd>Esc</kbd> held, the tempo). <kbd>←</kbd> <kbd>→</kbd> turn PRESETS.</li>
+    </ul>
+  </div>
+  <div class="wide">
+    <h2>The pieces</h2>
+    <p>Twenty, on PRESETS, in four models. Each remembers how you left it, and the model is a knob too (System), so any piece can be played another way.</p>
+    <div class="models">
+      <div><h3>Arpeggio</h3><p>Figures of the chord's tones, two against three; the additive process grows and shrinks them a note at a time.</p><p class="names">Morning · Glacier · Lagoon · Machine · Skyline · Evening · Counting · Prism</p></div>
+      <div><h3>Phase</h3><p>Two parts play one figure; the lower slowly drifts ahead, locks in a step ahead, drifts on, and comes round to unison.</p><p class="names">Drift · Breath · Weave · Tilt</p></div>
+      <div><h3>Patterns</h3><p>A chain of short patterns, each a little changed from the last; three players move along it at their own pace over a high pulse.</p><p class="names">Bazaar · Field · Gears · Murmur</p></div>
+      <div><h3>Bells</h3><p>A melody walks the scale by step in phrases that grow from one note; a bell answers each note with the chord's nearest tone.</p><p class="names">Vigil · Snowfall · Lantern · Chapel</p></div>
+    </div>
+  </div>
+  <div class="wide knobs">
+    <h2>Pages and knobs</h2>
+    <p>One page a part, each on its own button: KNOB 1 is the part's level, KNOB 2 its sound. <b>SELECT</b> steps through the pages; GLO pressed again opens System. Some knobs take another name in some models (in brackets).</p>
+    <div class="pages">
+      <div class="form">
+        <h3>Form <span>HOME</span></h3>
+        <dl>
+          <div><dt>Evolve (Patterns: Move on)</dt><dd>How restless it is: short sections, figures and chords that change. In Phase, how soon the parts unlock and drift on; in Patterns, how soon each player moves on.</dd></div>
+          <div><dt>Build</dt><dd>The slow arc between sparse and full: at each new section a part comes in or leaves. At 0 every part plays, or the ones you bring in by hand.</dd></div>
+          <div><dt>Process (Phase: Drift, Patterns: Spread, Bells: Phrases)</dt><dd>How often a figure takes up the additive process. In Phase, how fast the lower drifts; in Patterns, how far apart the players may get; in Bells, how long the phrases grow.</dd></div>
+          <div><dt>Chord</dt><dd>How long each chord of the cycle lasts: 2 beats, 1 bar, 2 bars or 4 bars. Tempo is HOME + SELECT, from any page.</dd></div>
+        </dl>
+      </div>
+      <div class="p-upper">
+        <h3>Upper <span>ENV</span></h3>
+        <dl>
+          <dt>Level, Sound</dt><dd>How loud; piano, organ, flute, strings or marimba.</dd><dt>Pulse, Figure (Patterns: Start, Bells: Bells)</dt><dd>2, 3, 4 or 6 notes a beat; the figure the chord is played in. In Patterns, the pattern it starts from; in Bells, where the bells answer: Above, Below, Both or Above 2. OCT− and OCT+ move it an octave.</dd>
+        </dl>
+      </div>
+      <div class="p-lower">
+        <h3>Lower <span>ARP</span></h3>
+        <dl>
+          <dt>Level, Sound</dt><dd>How loud; piano, organ, strings or marimba.</dd><dt>Pulse, Figure (Patterns: Start)</dt><dd>As the upper's. Against the upper's pulse they make the cross-rhythms: 3 against 2, 4 against 3. In Phase this is the part that drifts.</dd>
+        </dl>
+      </div>
+      <div class="p-bass">
+        <h3>Bass <span>LFO</span></h3>
+        <dl>
+          <dt>Level, Sound</dt><dd>How loud; synth bass, organ, strings or piano.</dd><dt>Style, Octave</dt><dd>Long notes, a pulse, octaves, or root and fifth; an octave down or up.</dd>
+        </dl>
+      </div>
+      <div class="p-lead">
+        <h3>Lead <span>SEQ</span></h3>
+        <dl>
+          <dt>Level, Sound</dt><dd>How loud; soprano sax, flute, horn, strings or piano.</dd><dt>Activity (Patterns, Bells: Pace), Harmony</dt><dd>How busy the line is (in Patterns and Bells, how quick its notes are); alone, a pair (a second voice below it) or in octaves.</dd>
+        </dl>
+      </div>
+      <div class="p-chords">
+        <h3>Chords <span>FX</span></h3>
+        <dl>
+          <dt>Level, Sound</dt><dd>How loud; strings, organ or horn.</dd><dt>Rhythm, Room</dt><dd>Held, a swell on each chord, 8ths, beats, a breath, or a single high pulse; the plate reverb, how much and how long.</dd>
+        </dl>
+      </div>
+      <div>
+        <h3>Setup and System <span>GLO, GLO again</span></h3>
+        <dl>
+          <dt>Tempo, Root, Keys, Hold</dt><dd>40 to 200 beats a minute; the key's root, which moves everything; EASY or NOTES keys; Hold on or off.</dd><dt>Model, MIDI out, Lights, CPU</dt><dd>The model the piece plays in; on the FM-1, a channel a part and the clock over USB; the key lights (Off, On, or Keys: without the buttons' glow); how hard the processor works.</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+  <div class="wide">
+    <h2>Saving</h2>
+    <p>SAVE keeps the pieces and the songs in this browser, as the FM-1 keeps them in its memory; MIN-1 also saves by itself a few seconds after a change while it is stopped. Factory reset forgets them.
+      It is the firmware, not a recording: what you hear is MIN-1 running at the FM-1's 44.1 kHz. In claude.ai a recording is saved as a zip with the WAV inside, since a WAV can't be saved from there directly.
+      The emulator comes from Charles Vestal's AMB-1, and the idea of running FM-1 firmware in the browser from <a href="https://www.groove-os.com/">Groove OS</a>.</p>
+  </div>
+</section>
+</main>
+
+<script>
+"use strict";
+const NS = "http://www.w3.org/2000/svg";
+const BTN = { FX: 0, SEL: 1, ENV: 2, LFO: 3, EDIT: 4, GLO: 5, HOME: 6, SAVE: 7, ARP: 8, SEQ: 9, PLAY: 10, REC: 11, "OCT-": 12, "OCT+": 13 };
+const ENC = { SELECT: 0, ALGORITHM: 1, PRESETS: 2, KNOB1: 3, KNOB2: 4, KNOB3: 5, KNOB4: 6 };
+const WHITE_K = [0, 2, 4, 6, 7, 9, 11, 12, 14, 16, 18, 19, 21, 23, 24, 26];
+const BLACK_K = [1, 3, 5, 8, 10, 13, 15, 17, 20, 22, 25];
+const BLACK_AFTER = [0, 1, 2, 4, 5, 7, 8, 9, 11, 12, 14];
+const KEY0 = 53;                                          // key 0 is F3 (MIDI 53)
+const NOTE = ["C", "C♯", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"];
+const BODY = "#3a3d42", TRAY = "#26282c", KEY_W = "#d9dadc", KEY_B = "#c9cacd", KNOB = "#1f2124", BTNC = "#2e3135", LABEL = "#e8e8ea";
+const STORE_KEY = "min-emu-store";
+
+const svg = document.getElementById("panel");
+function el(tag, attrs, parent = svg) {
+  const e = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+  parent.appendChild(e);
+  return e;
+}
+function text(parent, x, y, s, size, fill = LABEL, weight = 600) {
+  const t = el("text", { x, y, "text-anchor": "middle", "font-family": "'Barlow Semi Condensed', 'Arial Narrow', Arial, sans-serif",
+                         "font-size": size, "font-weight": weight, fill, "letter-spacing": ".05em", class: "btn", "pointer-events": "none" }, parent);
+  t.textContent = s;
+  return t;
+}
+
+// ---------------------------------------------------------------- the panel
+el("rect", { x: 4, y: 4, width: 992, height: 632, rx: 44, fill: BODY });
+const knobs = {};
+function knob(x, y, r, label, role) {
+  const g = el("g", { class: "ctl knob", tabindex: 0, role: "slider", "aria-label": label });
+  el("circle", { cx: x, cy: y, r: r + 5, fill: TRAY }, g);
+  el("circle", { cx: x, cy: y, r, fill: KNOB, stroke: "#44474c", "stroke-width": 2 }, g);
+  const ind = el("line", { x1: x, y1: y - r + 5, x2: x, y2: y - r + 15, stroke: LABEL, "stroke-width": 3, "stroke-linecap": "round" }, g);
+  text(g, x, y - r - 12, label, 17);
+  el("circle", { cx: x, cy: y, r: r + 14, fill: "transparent" }, g);
+  knobs[label] = { g, ind, x, y, angle: 0, role };
+  return knobs[label];
+}
+knob(105, 100, 24, "MASTER", "master");
+knob(215, 100, 24, "SELECT", ENC.SELECT);
+knob(105, 205, 24, "PRESETS", ENC.PRESETS);
+knob(215, 205, 24, "ALGORITHM", ENC.ALGORITHM);
+for (let i = 0; i < 4; i++) knob(610 + i * 104, 100, 22, `KNOB${i + 1}`, ENC[`KNOB${i + 1}`]);
+
+const buttons = {};
+function button(x, y, w, h, label, two) {
+  const g = el("g", { class: "ctl" + (label === "PLAY" ? " play" : label === "REC" ? " rec" : ""), role: "button", "aria-label": label });
+  el("rect", { x, y, width: w, height: h, rx: 9, fill: BTNC, stroke: "#4a4d52", "stroke-width": 1.5, class: "btnface" }, g);
+  if (two) { text(g, x + w / 2, y + h / 2 - 1, label, 12); text(g, x + w / 2, y + h / 2 + 12, two, 12); }
+  else text(g, x + w / 2, y + h / 2 + 5, label, 15);
+  buttons[label] = { g, bit: BTN[label] };
+}
+el("rect", { x: 58, y: 258, width: 210, height: 58, rx: 14, fill: TRAY });
+button(72, 268, 82, 38, "OCT-"); button(170, 268, 82, 38, "OCT+");
+el("rect", { x: 300, y: 44, width: 236, height: 236, rx: 26, fill: "#111214" });
+el("rect", { x: 568, y: 160, width: 400, height: 140, rx: 18, fill: TRAY });
+const ROW1 = ["FX", "SEL", "ENV", "LFO", "EDIT", "GLO"], ROW2 = ["HOME", "SAVE", "ARP", "SEQ", "PLAY", "REC"];
+for (let i = 0; i < 6; i++) {
+  button(582 + i * 63, 174, 54, 48, ROW1[i]);
+  if (ROW2[i] === "PLAY") button(582 + i * 63, 236, 54, 48, "PLAY", "STOP"); else button(582 + i * 63, 236, 54, 48, ROW2[i]);
+}
+
+const keys = [];
+(function keybed(x0, y0, w, h) {
+  el("rect", { x: x0, y: y0, width: w, height: h, rx: 18, fill: TRAY });
+  const pitch = (w - 24) / 16, kw = pitch * 0.78;
+  const name = (k) => NOTE[(KEY0 + k) % 12] + (Math.floor((KEY0 + k) / 12) - 1);
+  for (let i = 0; i < 16; i++) {
+    const g = el("g", { class: "ctl", role: "button", "aria-label": `key ${name(WHITE_K[i])}` });
+    el("rect", { x: x0 + 12 + i * pitch + (pitch - kw) / 2, y: y0 + h * 0.43, width: kw, height: h * 0.52, rx: kw / 2, fill: KEY_W, class: "keyface white" }, g);
+    keys[WHITE_K[i]] = { g };
+  }
+  BLACK_AFTER.forEach((a, k) => {
+    const g = el("g", { class: "ctl", role: "button", "aria-label": `key ${name(BLACK_K[k])}` });
+    el("rect", { x: x0 + 12 + (a + 1) * pitch - kw / 2, y: y0 + h * 0.06, width: kw, height: h * 0.33, rx: kw / 2, fill: KEY_B, class: "keyface black" }, g);
+    keys[BLACK_K[k]] = { g };
+  });
+})(36, 340, 928, 270);
+
+// ---------------------------------------------------------------- touch targets
+// The drawing is only a picture (pointer-events: none). Each control gets an invisible HTML target
+// over it: browsers (iOS Safari above all) honour touch-action and touchstart on HTML elements but
+// not on SVG ones, so the controls keep their touches while a finger anywhere else on the device
+// scrolls the page natively.
+const device = document.getElementById("device");
+function hit(c, cls) {
+  const b = c.g.getBBox(), d = document.createElement("div");
+  d.className = "hit" + (cls ? " " + cls : "");
+  Object.assign(d.style, { left: `${b.x / 10}%`, top: `${b.y / 6.4}%`, width: `${b.width / 10}%`, height: `${b.height / 6.4}%` });
+  for (const a of ["role", "aria-label", "tabindex"]) if (c.g.hasAttribute(a)) { d.setAttribute(a, c.g.getAttribute(a)); c.g.removeAttribute(a); }
+  if (c.g.hasAttribute("aria-description")) { d.title = c.g.getAttribute("aria-description"); d.setAttribute("aria-description", d.title); }
+  c.g.setAttribute("aria-hidden", "true");
+  d.addEventListener("touchstart", (e) => e.preventDefault(), { passive: false });
+  device.insertBefore(d, document.getElementById("start"));
+  c.hit = d;
+}
+// what each control does, on hover (the lists below say the same)
+const TIP = { FX: "Chords page (SEL + FX: the chords in / out)", SEL: "Hold: by hand, its map on the screen (Tab, or Shift-click)",
+  ENV: "Upper page (SEL + ENV: in / out)", LFO: "Bass page (SEL + LFO: in / out)", EDIT: "An idea for this page (SEL + EDIT: the one before)",
+  GLO: "Setup page; again: System", HOME: "Form page (held, SELECT sets the tempo)", ARP: "Lower page (SEL + ARP: in / out)",
+  SEQ: "Lead page (SEL + SEQ: in / out)", SAVE: "Save (hold: the piece back to its recipe; in SONGS, the song deleted)",
+  PLAY: "Play / stop (in SONGS: the song; SEL + PLAY: songs / live)", REC: "Record a song from the top; again: kept (SEL + REC: learn a cycle)",
+  "OCT-": "Upper part an octave down", "OCT+": "Upper part an octave up", SELECT: "Pages (with HOME held: tempo)",
+  ALGORITHM: "The chord cycle", PRESETS: "The piece (in SONGS: the song)", MASTER: "Volume" };
+for (const [n, c] of [...Object.entries(buttons), ...Object.entries(knobs)]) if (TIP[n]) c.g.setAttribute("aria-description", TIP[n]);
+for (const k of Object.values(knobs)) hit(k, "knob");
+for (const b of Object.values(buttons)) hit(b);
+keys.forEach((k) => hit(k));
+
+// ---------------------------------------------------------------- state and input
+let node = null, btnMask = 0, keyMask = 0, latched = 0, latchedKeys = 0, master = 2800;
+const btnHeldBy = new Map(), keyHeldBy = new Map();      // pointer / key id -> bit
+// A tap (a trackpad's tap-to-click above all) can go down and up between two audio blocks, before the
+// FM-1 looks at its buttons: a press is let go only once it has been down MIN_PRESS ms
+const MIN_PRESS = 60, btnDownAt = new Map(), keyDownAt = new Map();   // id -> when it went down
+function holdDown(held, downAt, id, bit, sync) { held.set(id, bit); downAt.set(id, performance.now()); sync(); }
+function letGo(held, downAt, id, sync) {
+  if (!held.has(id)) return;
+  const t0 = downAt.get(id), go = () => { if (downAt.get(id) === t0 && held.delete(id)) { downAt.delete(id); sync(); } };
+  const wait = MIN_PRESS - (performance.now() - t0);
+  if (wait > 0) setTimeout(go, wait); else go();
+}
+function send(m) { if (node) node.port.postMessage(m); }
+function syncButtons() {
+  let m = latched;
+  for (const b of btnHeldBy.values()) m |= 1 << b;
+  if (m !== btnMask) { btnMask = m; send({ type: "buttons", mask: m }); }
+  for (const b of Object.values(buttons)) {
+    b.g.classList.toggle("held", !!(m & (1 << b.bit)));
+    b.g.classList.toggle("latched", !!(latched & (1 << b.bit)));
+    b.hit.setAttribute("aria-pressed", m & (1 << b.bit) ? "true" : "false");
+  }
+}
+function syncKeys() {
+  let m = latchedKeys;
+  for (const k of keyHeldBy.values()) m |= 1 << k;
+  if (m !== keyMask) { keyMask = m; send({ type: "keys", mask: m }); }
+  keys.forEach((k, i) => {
+    k.g.classList.toggle("held", !!(m & (1 << i)));
+    k.hit.setAttribute("aria-pressed", m & (1 << i) ? "true" : "false");
+  });
+}
+
+for (const b of Object.values(buttons)) {
+  b.hit.addEventListener("contextmenu", (e) => e.preventDefault());
+  b.hit.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    if (e.shiftKey || e.button === 2) { latched ^= 1 << b.bit; syncButtons(); return; }
+    if (latched & (1 << b.bit)) { latched &= ~(1 << b.bit); syncButtons(); return; }
+    b.hit.setPointerCapture(e.pointerId);
+    holdDown(btnHeldBy, btnDownAt, "p" + e.pointerId, b.bit, syncButtons);
+  });
+}
+// a mouse has one finger: Shift-click (or right-click) keys to hold a chord, click one of them to let it go
+keys.forEach((k, i) => {
+  k.hit.addEventListener("contextmenu", (e) => e.preventDefault());
+  k.hit.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    if (e.shiftKey || e.button === 2) { latchedKeys ^= 1 << i; syncKeys(); return; }
+    if (latchedKeys & (1 << i)) { latchedKeys = 0; syncKeys(); return; }
+    k.hit.setPointerCapture(e.pointerId);
+    holdDown(keyHeldBy, keyDownAt, "p" + e.pointerId, i, syncKeys);
+  });
+});
+function pointerUp(e) {
+  const id = "p" + e.pointerId;
+  letGo(btnHeldBy, btnDownAt, id, syncButtons);
+  letGo(keyHeldBy, keyDownAt, id, syncKeys);
+}
+device.addEventListener("pointerup", pointerUp);
+device.addEventListener("pointercancel", pointerUp);
+device.addEventListener("lostpointercapture", pointerUp);
+
+function drawKnob(k) {
+  k.ind.setAttribute("transform", `rotate(${k.angle} ${k.x} ${k.y})`);
+}
+function turn(k, n) {
+  if (!n) return;
+  if (k.role === "master") {
+    master = Math.max(0, Math.min(4096, master + n * 64));
+    k.angle = -135 + 270 * master / 4096;
+    send({ type: "master", value: master });
+  } else {
+    k.angle = (k.angle + n * 18) % 360;
+    send({ type: "enc", role: k.role, n });
+  }
+  drawKnob(k);
+}
+let pageScrolled = -1e9;                                  // a scroll passing over a knob moves the page, not the knob
+addEventListener("scroll", () => { pageScrolled = performance.now(); }, { passive: true });
+for (const k of Object.values(knobs)) {
+  if (k.role === "master") { k.angle = -135 + 270 * master / 4096; drawKnob(k); }
+  let drag = null, wheel = 0;
+  k.hit.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    k.hit.setPointerCapture(e.pointerId);
+    drag = { y: e.clientY, acc: 0 };
+  });
+  k.hit.addEventListener("pointermove", (e) => {
+    if (!drag) return;
+    drag.acc += drag.y - e.clientY;
+    drag.y = e.clientY;
+    const step = k.role === "master" ? 3 : 7;
+    const n = Math.trunc(drag.acc / step);
+    if (n) { drag.acc -= n * step; turn(k, n); }
+  });
+  const end = () => { drag = null; };
+  k.hit.addEventListener("pointerup", end);
+  k.hit.addEventListener("pointercancel", end);
+  k.hit.addEventListener("wheel", (e) => {
+    if (performance.now() - pageScrolled < 300) return;
+    e.preventDefault();
+    const dy = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaY;
+    if (Math.abs(dy) >= 50) { turn(k, dy < 0 ? 1 : -1); wheel = 0; return; }   // a mouse wheel notch: one detent
+    wheel -= dy;                                                                   // a trackpad: by distance
+    const n = Math.trunc(wheel / 25);
+    if (n) { wheel -= n * 25; turn(k, n); }
+  }, { passive: false });
+  k.hit.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowUp" || e.key === "ArrowRight") { turn(k, 1); e.preventDefault(); e.stopPropagation(); }
+    if (e.key === "ArrowDown" || e.key === "ArrowLeft") { turn(k, -1); e.preventDefault(); e.stopPropagation(); }
+  });
+}
+
+const KEYMAP = {};
+"qwertyui".split("").forEach((c, i) => KEYMAP["Key" + c.toUpperCase()] = { key: WHITE_K[i] });
+"asdfghjk".split("").forEach((c, i) => KEYMAP["Key" + c.toUpperCase()] = { key: WHITE_K[8 + i] });
+"1234567890".split("").forEach((c, i) => KEYMAP["Digit" + c] = { key: BLACK_K[i] });
+KEYMAP.Minus = { key: BLACK_K[10] };
+Object.assign(KEYMAP, { Space: { btn: BTN.PLAY }, Enter: { btn: BTN.REC }, KeyN: { btn: BTN.EDIT }, Tab: { btn: BTN.SEL },
+                        Escape: { btn: BTN.HOME }, KeyZ: { btn: BTN["OCT-"] }, KeyX: { btn: BTN["OCT+"] } });
+const ARROWS = { ArrowUp: ["SELECT", 1], ArrowDown: ["SELECT", -1], ArrowRight: ["PRESETS", 1], ArrowLeft: ["PRESETS", -1] };
+addEventListener("keydown", (e) => {
+  if (!node || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (ARROWS[e.code]) { turn(knobs[ARROWS[e.code][0]], ARROWS[e.code][1]); e.preventDefault(); return; }
+  const m = KEYMAP[e.code];
+  if (!m || (e.code === "Tab" && e.shiftKey)) return;    // Shift+Tab still moves the focus
+  e.preventDefault();
+  if (e.repeat) return;
+  if (m.key !== undefined) holdDown(keyHeldBy, keyDownAt, "k" + e.code, m.key, syncKeys);
+  else holdDown(btnHeldBy, btnDownAt, "k" + e.code, m.btn, syncButtons);
+});
+addEventListener("keyup", (e) => {
+  const id = "k" + e.code;
+  letGo(keyHeldBy, keyDownAt, id, syncKeys);
+  letGo(btnHeldBy, btnDownAt, id, syncButtons);
+});
+addEventListener("blur", () => {
+  for (const id of [...btnHeldBy.keys()]) if (id[0] === "k") btnHeldBy.delete(id);
+  for (const id of [...keyHeldBy.keys()]) if (id[0] === "k") keyHeldBy.delete(id);
+  syncButtons(); syncKeys();
+});
+
+// ---------------------------------------------------------------- screen and lights
+const ctx = document.getElementById("screen").getContext("2d");
+const img = ctx.createImageData(240, 240);
+function drawScreen(fb) {
+  const d = img.data;
+  for (let i = 0; i < 240 * 240; i++) {
+    const v = fb[i], p = ((v >> 8) | (v << 8)) & 0xFFFF;
+    d[i * 4] = ((p >> 11) & 31) * 255 / 31;
+    d[i * 4 + 1] = ((p >> 5) & 63) * 255 / 63;
+    d[i * 4 + 2] = (p & 31) * 255 / 31;
+    d[i * 4 + 3] = 255;
+  }
+  ctx.putImageData(img, 0, 0);
+}
+function drawLights(b, k, songRec) {
+  for (const x of Object.values(buttons)) x.g.classList.toggle("lit", !!(b & (1 << x.bit)));
+  keys.forEach((x, i) => x.g.classList.toggle("lit", !!(k & (1 << i))));
+  device.classList.toggle("song-rec", !!songRec);       // PLAY turns red while a song records, as on the FM-1
+}
+const meter = document.getElementById("meter");
+let level = 0;
+function drawLevel(peak) {                                // the output's peak, -60 to 0 dB, falling back gently
+  const db = peak > 0 ? Math.max(-60, 20 * Math.log10(peak)) : -60;
+  level = Math.max((db + 60) / 60, level * 0.85);
+  meter.style.width = `${(level * 100).toFixed(1)}%`;
+  meter.parentElement.setAttribute("aria-valuenow", Math.round(level * 60 - 60));
+}
+
+// ---------------------------------------------------------------- storage
+function loadStore() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(STORE_KEY) || "{}"), out = {};
+    for (const [o, b64] of Object.entries(raw)) out[o] = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0)).buffer;
+    return out;
+  } catch { return {}; }
+}
+function saveStore(store) {
+  try {
+    const raw = {};
+    for (const [o, u8] of Object.entries(store)) { let s = ""; for (const c of u8) s += String.fromCharCode(c); raw[o] = btoa(s); }
+    localStorage.setItem(STORE_KEY, JSON.stringify(raw));
+  } catch { /* storage unavailable: this session only */ }
+}
+
+// ---------------------------------------------------------------- recording what you hear
+// While it records the worklet sends the output as 16-bit stereo; stopped, it is a take to save as a WAV.
+// Inside claude.ai files are saved through the viewer (the downloads capability), which takes a zip but
+// not a WAV: there the WAV goes into a zip as it is. A page of its own saves the WAV itself.
+const recBtn = document.getElementById("rec"), saveBtn = document.getElementById("save"), recInfo = document.getElementById("recinfo");
+const REC_MAX = 44100 * 60 * 30;                          // half an hour, at most
+const downloads = window.claude && window.claude.use ? window.claude.use("downloads").catch(() => null) : Promise.resolve(null);
+let recording = false, recChunks = [], recFrames = 0, take = null;
+const mmss = (frames) => { const s = Math.floor(frames / 44100); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; };
+function drawRec() {
+  recBtn.textContent = recording ? `Stop recording ${mmss(recFrames)}` : "Record audio";
+  recBtn.classList.toggle("on", recording);
+  saveBtn.hidden = !take || recording;
+  if (take) saveBtn.textContent = `Save recording (${mmss(take.frames)})`;
+}
+recBtn.addEventListener("click", () => {
+  if (!node) return;
+  if (recording) {                                        // the worklet sends what is left, then the take is whole
+    recording = false;
+    recBtn.disabled = true;
+    send({ type: "rec", on: false });
+    return;
+  }
+  recording = true;
+  recChunks = [];
+  recFrames = 0;
+  take = null;
+  recInfo.textContent = "";
+  send({ type: "rec", on: true });
+  drawRec();
+});
+function onRec(m) {
+  recChunks.push(m.pcm);
+  recFrames += m.pcm.length / 2;
+  if (m.end) {
+    take = { chunks: recChunks, frames: recFrames, name: `MIN-1 ${m.title || ""}`.trim() };
+    recChunks = [];
+    recBtn.disabled = false;
+  } else if (recording && recFrames >= REC_MAX) {
+    recording = false;
+    recBtn.disabled = true;
+    send({ type: "rec", on: false });
+    recInfo.textContent = "Stopped at half an hour.";
+  }
+  drawRec();
+}
+function wavHeader(bytes) {                               // 16-bit stereo PCM at the FM-1's 44.1 kHz
+  const v = new DataView(new ArrayBuffer(44)), tag = (o, s) => { for (let i = 0; i < 4; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+  tag(0, "RIFF"); v.setUint32(4, 36 + bytes, true); tag(8, "WAVE"); tag(12, "fmt "); v.setUint32(16, 16, true);
+  v.setUint16(20, 1, true); v.setUint16(22, 2, true); v.setUint32(24, 44100, true); v.setUint32(28, 44100 * 4, true);
+  v.setUint16(32, 4, true); v.setUint16(34, 16, true); tag(36, "data"); v.setUint32(40, bytes, true);
+  return v.buffer;
+}
+const CRC_T = new Uint32Array(256).map((_, n) => { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; return c >>> 0; });
+function zipOne(name, parts) {                            // a zip of one file, stored (not compressed)
+  let crc = 0xFFFFFFFF, size = 0;
+  for (const p of parts) {
+    const b = p instanceof ArrayBuffer ? new Uint8Array(p) : new Uint8Array(p.buffer, p.byteOffset, p.byteLength);
+    for (let i = 0; i < b.length; i++) crc = CRC_T[(crc ^ b[i]) & 255] ^ (crc >>> 8);
+    size += b.length;
+  }
+  crc = (crc ^ 0xFFFFFFFF) >>> 0;
+  const fn = new TextEncoder().encode(name), d = new Date();
+  const time = d.getHours() << 11 | d.getMinutes() << 5 | d.getSeconds() >> 1, date = (d.getFullYear() - 1980) << 9 | (d.getMonth() + 1) << 5 | d.getDate();
+  const loc = new DataView(new ArrayBuffer(30 + fn.length)), cen = new DataView(new ArrayBuffer(46 + fn.length)), end = new DataView(new ArrayBuffer(22));
+  loc.setUint32(0, 0x04034b50, true); loc.setUint16(4, 20, true); loc.setUint16(6, 0x0800, true); loc.setUint16(10, time, true); loc.setUint16(12, date, true);
+  loc.setUint32(14, crc, true); loc.setUint32(18, size, true); loc.setUint32(22, size, true); loc.setUint16(26, fn.length, true);
+  new Uint8Array(loc.buffer, 30).set(fn);
+  cen.setUint32(0, 0x02014b50, true); cen.setUint16(4, 20, true); cen.setUint16(6, 20, true); cen.setUint16(8, 0x0800, true); cen.setUint16(12, time, true);
+  cen.setUint16(14, date, true); cen.setUint32(16, crc, true); cen.setUint32(20, size, true); cen.setUint32(24, size, true); cen.setUint16(28, fn.length, true);
+  new Uint8Array(cen.buffer, 46).set(fn);
+  end.setUint32(0, 0x06054b50, true); end.setUint16(8, 1, true); end.setUint16(10, 1, true); end.setUint32(12, cen.byteLength, true);
+  end.setUint32(16, loc.byteLength + size, true);
+  return new Blob([loc, ...parts, cen, end]);
+}
+saveBtn.addEventListener("click", async () => {
+  if (!take) return;
+  const wav = [wavHeader(take.frames * 4), ...take.chunks], dl = await downloads;
+  if (!dl) {
+    if (window.claude) { recInfo.textContent = "Saving files is not available in this view."; return; }
+    const a = document.createElement("a");                // a page of its own: the WAV itself
+    a.href = URL.createObjectURL(new Blob(wav, { type: "audio/wav" }));
+    a.download = `${take.name}.wav`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 60000);
+    return;
+  }
+  saveBtn.disabled = true;
+  try {
+    await dl.save({ filename: `${take.name}.zip`, data: zipOne(`${take.name}.wav`, wav) });
+    recInfo.textContent = "Saved: a zip with the WAV inside.";
+  } catch (err) {
+    const code = err && err.code;
+    recInfo.textContent = code === "declined" ? "Not saved." : code === "rate_limited" ? "Busy: try again in a moment."
+      : code === "too_large" ? "Too long to save here: record a shorter take." : "Saving files is not available in this view.";
+  } finally {
+    saveBtn.disabled = false;
+  }
+});
+
+// ---------------------------------------------------------------- switching on
+const status = document.getElementById("status"), cpu = document.getElementById("cpu");
+async function switchOn() {
+  const go = document.getElementById("go");
+  go.disabled = true;
+  go.textContent = "Starting...";
+  try {
+    const ac = new AudioContext({ sampleRate: 44100, latencyHint: "interactive" });
+    const [wasm] = await Promise.all([fetch("min.wasm").then((r) => { if (!r.ok) throw new Error(`min.wasm: ${r.status}`); return r.arrayBuffer(); }),
+                                      ac.audioWorklet.addModule("worklet.js")]);
+    node = new AudioWorkletNode(ac, "min", { numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [2] });
+    node.connect(ac.destination);
+    const ready = new Promise((res) => {
+      node.port.onmessage = (e) => {
+        const m = e.data;
+        if (m.type === "ready") res();
+        else if (m.type === "rec") onRec(m);
+        else if (m.type === "frame") {
+          if (m.fb) drawScreen(m.fb);
+          drawLights(m.buttons, m.keys, m.song === 1);
+          drawLevel(m.peak);
+          window.minLast = m;
+          if (m.load !== undefined) cpu.textContent = `MIN-1 uses ${m.load}% of this computer's time`;
+          if (m.store) saveStore(m.store);
+        }
+      };
+    });
+    node.port.postMessage({ type: "load", wasm, store: loadStore(), master }, [wasm]);
+    await ready;
+    await ac.resume();
+    document.getElementById("start").hidden = true;
+    const on = ac.sampleRate === 44100 ? "On." : `On (the browser runs audio at ${ac.sampleRate} Hz).`;
+    status.textContent = on;
+    ac.onstatechange = () => { status.textContent = ac.state === "running" ? on : "Paused by the browser: click the FM-1 or press a key to carry on."; };
+    recBtn.disabled = false;
+    syncButtons(); syncKeys();
+  } catch (err) {
+    go.disabled = false;
+    go.textContent = "Switch on";
+    status.textContent = "Could not start: " + (err && err.message || err) + ". Chrome, Edge, Firefox and Safari should all work.";
+  }
+}
+document.getElementById("go").addEventListener("click", switchOn);
+function wake() { if (node && node.context.state !== "running") node.context.resume().catch(() => {}); }   // the browser paused the audio
+device.addEventListener("pointerdown", wake, true);
+addEventListener("keydown", wake, true);
+document.getElementById("reset").addEventListener("click", () => {
+  if (document.getElementById("reset").dataset.armed) {
+    try { localStorage.removeItem(STORE_KEY); } catch {}
+    location.reload();
+  } else {
+    document.getElementById("reset").dataset.armed = "1";
+    document.getElementById("reset").textContent = "Click again to forget everything";
+  }
+});
+</script>
+</body>
+</html>

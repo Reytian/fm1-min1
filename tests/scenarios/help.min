@@ -1,0 +1,16 @@
+# help cards: hold a button alone a second and a card says what it does; letting go then does nothing
+wait 300
+press REC
+wait 1000
+shot help_rec.png
+release REC
+expect learning 0
+press HOME
+wait 1000
+shot help_home.png
+release HOME
+expect view 0
+press EDIT
+wait 1000
+shot help_edit.png
+release EDIT

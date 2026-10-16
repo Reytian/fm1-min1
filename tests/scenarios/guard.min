@@ -1,0 +1,16 @@
+# the overload guard: a block reported over 90% brings it on; 3 s under 65% take it off again
+wait 500
+expect guard 0
+load 95
+wait 200
+expect guard 1
+expect guards 1
+tap GLO
+tap GLO
+wait 100
+expect view 7
+shot guard.png
+load 40
+wait 3500
+expect guard 0
+load -1
