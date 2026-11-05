@@ -27,6 +27,7 @@ run trs sh -c "$CC -O2 -w -Ifirmware/src -Ifirmware/hal -o $OUT/trs_test tests/h
 run min sh -c "$CC -O2 -ffp-contract=off -std=c99 -Wall -Wextra -Wdouble-promotion -Werror -DEN_HOST -Ifirmware/src/dsp \
     -o $OUT/min_test tests/host/min_test.c firmware/src/dsp/min.c && $OUT/min_test"
 run storage sh -c "$CC -O2 -o $OUT/storage_test tests/storage_test.c && $OUT/storage_test"
+run flash-ok sh -c "$CC -O2 -Wall -Wextra -Werror -Ifirmware/hal -o $OUT/flash_ok_test tests/host/flash_ok_test.c && $OUT/flash_ok_test"
 # the update path, against the firmware package (Felucca's tests; needs ./build.sh)
 if [ -f build/min.fwsc ]; then
     run ota-entry sh -c "$CC -o $OUT/ota_test tests/ota_test.c && $OUT/ota_test build/min.fwsc"

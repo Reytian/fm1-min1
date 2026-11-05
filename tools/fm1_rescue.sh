@@ -1,9 +1,9 @@
 #!/bin/bash
 # FM-1 rescue: one command that puts M-VAVE's stock firmware back on an FM-1 stuck in a crash loop.
-#   bash -c "$(curl -fsSL https://raw.githubusercontent.com/charlesvestal/fm1-x0x/main/tools/fm1_rescue.sh)"
+#   bash -c "$(curl -fsSL https://raw.githubusercontent.com/Reytian/fm1-min1/main/tools/fm1_rescue.sh)"
 set -e
 DIR="$HOME/fm1-rescue"
-RAW="https://raw.githubusercontent.com/charlesvestal/fm1-x0x/main/tools"
+RAW="https://raw.githubusercontent.com/Reytian/fm1-min1/main/tools"
 STOCK=db1642b2b6fa5c2cccb11ffd13878068bb28601678d3644049f99dc40e7edb8a
 echo
 echo "=== FM-1 rescue ==="
@@ -29,7 +29,7 @@ for f in "$DIR"/*.fwsc "$HOME"/Downloads/*.fwsc "$HOME"/Desktop/*.fwsc; do
 done
 if [ -z "$PKG" ]; then
     echo "Downloading the stock firmware (M-VAVE's FM-1 V15) ..."
-    curl -fsSL -o "$DIR/FM-1.download" "https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/FM-1.fwsc"
+    curl -fsSL -o "$DIR/FM-1.download" "https://raw.githubusercontent.com/m-vave/fm1_open/b178ac43c25f010c60a878056fb5331fe693fd62/sdk/firmware/FM-1_015.fwsc"
     if [ "$(shasum -a 256 "$DIR/FM-1.download" | cut -d' ' -f1)" != "$STOCK" ]; then
         echo "The downloaded file is not the expected V15 firmware. Nothing was done; send this output."
         exit 1

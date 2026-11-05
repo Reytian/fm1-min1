@@ -13,8 +13,8 @@ on the figures, and record it all as a song.
 
 - **Try it in your browser** (no FM-1 needed): <https://reytian.github.io/fm1-min1/emu/>
 - **Install it** (Chrome or Edge, with the FM-1 plugged in): <https://reytian.github.io/fm1-min1/install/>,
-  or from the command line: `python3 tools/fm1_install.py min-0.2.1.fwsc` (see [BUILDING.md](BUILDING.md#install))
-- **Download the firmware file**: [releases](https://github.com/Reytian/fm1-min1/releases) (`min-0.2.1.fwsc`)
+  or from the command line: `python3 tools/fm1_install.py min-0.2.2.fwsc` (see [BUILDING.md](BUILDING.md#install))
+- **Download the firmware file**: [releases](https://github.com/Reytian/fm1-min1/releases) (`min-0.2.2.fwsc`)
 - **Watch the demo** (3:49, recorded from the browser emulator, no voice-over):
   [min1-demo.mp4](https://github.com/Reytian/fm1-min1/releases/download/v0.2/min1-demo.mp4)
 
@@ -90,6 +90,12 @@ instructions it runs (calibrated against X0X's published PERF TEST figures).
 Installing firmware is at your own risk. An FM-1 that fails to start twice comes up in a safe mode with
 USB on, and M-VAVE's own firmware can always be put back: the web installer's "Back to the stock
 firmware", or see BUILDING.md.
+
+**Newer FM-1s.** Units sold since autumn 2026 (mostly AliExpress) carry another flash chip, the UC25HQ80 (ID
+0xB36014). MIN-1 knows it from 0.2.2. Up to 0.2.1 it took such a unit for unknown: saves stayed in RAM, gone at
+power-off, and the firmware refused every update, so nothing could be installed over it. The FM-1 itself is fine, but
+installing again won't help: [the hub's rescue page](https://thefirmwarehub.com/tools/rescue/#chip) shows how to put
+a firmware back through the chip's download mode. 0.2.2 hasn't been tried on such a unit yet; reports are welcome.
 
 ## Credits
 

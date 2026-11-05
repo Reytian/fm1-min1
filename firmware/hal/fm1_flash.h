@@ -143,7 +143,7 @@ RAMINL int fl_wait_ready(uint32_t max_us, uint32_t *took_us)
 
 /* ---- entry points: IRQs OFF, args/buffers in RAM ---- */
 
-static RAMFN uint32_t fl_jedec_ram(void)                 /* expect 0x856014 */
+static RAMFN uint32_t fl_jedec_ram(void)                 /* the parts expected: fm1_flash_ok.h */
 {
     fl_saved_t s; uint32_t id;
     if (fl_enter(&s)) return 0;

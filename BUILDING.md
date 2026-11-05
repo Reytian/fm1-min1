@@ -84,8 +84,9 @@ python3 tools/fm1_install.py --info          # identity of the connected FM-1
 
 Installing firmware is at your own risk. Hold OCT− and OCT+ for 5 seconds for Felucca's update
 mode. If the FM-1 no longer starts but reaches the chip's update mode (4C4A:8057 on USB),
-`tools/fm1_rescue.sh` puts stock firmware back from a Mac; otherwise recovery needs
-[FM-1-transporter](https://github.com/kurogedelic/FM-1-transporter).
+`tools/fm1_rescue.sh` puts stock firmware back from a Mac (it takes M-VAVE's V15 only, and both flash chips); otherwise
+recovery needs [FM-1-transporter](https://github.com/kurogedelic/FM-1-transporter). An FM-1 stuck on a firmware that
+doesn't know its flash chip (see the README): [the hub's rescue page](https://thefirmwarehub.com/tools/rescue/#chip).
 
 ## Publishing a release
 
