@@ -120,3 +120,5 @@ MIN-1 是 M-VAVE FM-1 的极简主义音乐固件，受 FM1-AMB 与 Philip Glass
 亲手让声部进出，录下一首歌并原样回放。四种模型（琶音、相位、模式、钟声），二十首曲子。设计说明见
 [docs/DESIGN.md](docs/DESIGN.md)。在浏览器里试玩：<https://reytian.github.io/fm1-min1/emu/>；
 用 Chrome 或 Edge 安装：<https://reytian.github.io/fm1-min1/install/>。
+
+You can also try MIN-1 in the browser, no flashing needed, in the free community [FM-1 Emulator](https://fm1-emulator.atst.tools/).
